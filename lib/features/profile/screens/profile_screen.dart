@@ -1,5 +1,6 @@
 import 'package:aet_app/components/my_button.dart';
 import 'package:aet_app/core/constants/color_constants.dart';
+import 'package:aet_app/core/constants/globals.dart';
 import 'package:aet_app/core/routes/app_routes.dart';
 import 'package:aet_app/features/auth/screens/login_screen.dart';
 import 'package:aet_app/services/auth_service.dart';
@@ -39,7 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
 
       final response = await http.get(
-        Uri.parse('http://192.168.1.168:8080/user'),
+        Uri.parse('$baseUrl/user'),
         headers: {
           'Content-Type': 'application/json',
           // в JWT обычно нужно передавать в формате "Bearer <токен>"
