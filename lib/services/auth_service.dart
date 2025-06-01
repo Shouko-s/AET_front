@@ -1,12 +1,11 @@
 import 'dart:convert';
+import 'package:aet_app/core/constants/globals.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   // Base URL for your Spring backend API
   final _storage = const FlutterSecureStorage();
-  final String baseUrl = 'http://192.168.1.168:8080';
 
   // Сохраняем токен и дату истечения
   Future<void> _saveAuthData(String token, String expirationMillis) async {

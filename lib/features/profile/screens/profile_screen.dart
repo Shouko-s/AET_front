@@ -4,6 +4,8 @@ import 'package:aet_app/core/routes/app_routes.dart';
 import 'package:aet_app/features/auth/screens/login_screen.dart';
 import 'package:aet_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,27 +19,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _username;
   String? _email;
   bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _fetchUserProfile();
   }
 
-  Future<void> _loadUserData() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    final userData = await _authService.getCurrentUser();
-
-    setState(() {
-      _isLoading = false;
-      if (userData != null) {
-        _username = userData['username'];
-        _email = userData['email'];
+  Future<void> _fetchUserProfile() async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) {
+        setState(() {
+          _errorMessage = "Нет сохранённого токена, авторизуйтесь.";
+          _isLoading = false;
+        });
+        return;
       }
-    });
+
+      final response = await http.get(
+        Uri.parse('http://192.168.1.168:8080/user'),
+        headers: {
+          'Content-Type': 'application/json',
+          // в JWT обычно нужно передавать в формате "Bearer <токен>"
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+
+        setState(() {
+          _username = data['name'] as String? ?? "Unknown";
+          _email = data['email'] as String? ?? "unknown@example.com";
+          _isLoading = false;
+        });
+      } else {
+        final data = jsonDecode(response.body);
+        String msg = "Ошибка сервера (${response.statusCode})";
+        if (data is Map && data.containsKey('message')) {
+          msg = data['message'].toString();
+        }
+        setState(() {
+          _errorMessage = msg;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = "Сетевая ошибка: $e";
+        _isLoading = false;
+      });
+    }
   }
 
   void _logout() async {
