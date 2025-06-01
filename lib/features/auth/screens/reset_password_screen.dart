@@ -93,9 +93,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final horizontalPadding = screenWidth * 0.05;
     final titleFontSize = screenWidth * 0.08;
     final smallFontSize = screenWidth * 0.04;
+    final iconSize = screenWidth * 0.22;
 
     return Scaffold(
       backgroundColor: ColorConstants.backgroundColor,
@@ -117,7 +119,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 children: [
                   Icon(
                     Icons.lock_outline,
-                    size: screenWidth * 0.22,
+                    size: iconSize,
                     color: ColorConstants.primaryColor,
                   ),
                   const SizedBox(height: 18),
@@ -225,10 +227,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Change password',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: smallFontSize,
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
