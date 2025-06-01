@@ -1,5 +1,6 @@
 import 'package:aet_app/core/constants/color_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:aet_app/features/auth/screens/login_screen.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final String email;
@@ -52,12 +53,47 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       _isLoading = false;
       _success = true;
     });
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        (route) => false,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: ColorConstants.successColor.withOpacity(0.95),
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.check_circle, color: Colors.white, size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Password changed successfully!',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final horizontalPadding = screenWidth * 0.08;
+    final horizontalPadding = screenWidth * 0.05;
     final titleFontSize = screenWidth * 0.08;
     final smallFontSize = screenWidth * 0.04;
 
@@ -92,6 +128,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       fontWeight: FontWeight.bold,
                       color: ColorConstants.primaryColor,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 10),
                   Text(
