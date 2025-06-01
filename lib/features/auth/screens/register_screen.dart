@@ -3,6 +3,7 @@ import 'package:aet_app/components/my_checkbox.dart';
 import 'package:aet_app/components/my_textfield.dart';
 import 'package:aet_app/core/constants/color_constants.dart';
 import 'package:aet_app/features/courses/screens/courses_screen.dart';
+import 'package:aet_app/features/auth/screens/verify_account_screen.dart';
 import 'package:aet_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
@@ -54,7 +55,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (result['success'] == true) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const CoursesScreen()),
+          MaterialPageRoute(
+            builder:
+                (_) => VerifyAccountScreen(email: emailController.text.trim()),
+          ),
         );
       } else {
         setState(() => _errorMessage = result['message']);
