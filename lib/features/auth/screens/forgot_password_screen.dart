@@ -98,7 +98,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final horizontalPadding = screenWidth * 0.08;
+    final horizontalPadding = screenWidth * 0.05;
     final titleFontSize = screenWidth * 0.08;
     final smallFontSize = screenWidth * 0.04;
     final iconSize = screenWidth * 0.22;
