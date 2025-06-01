@@ -31,22 +31,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _register() async {
+  Future<void> _register() async {
     if (!_termsAccepted) {
-      setState(() {
-        _errorMessage = "Please accept the terms and conditions";
-      });
-      return;
-    }
-
-    final username = usernameController.text.trim();
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-
-    if (username.isEmpty || email.isEmpty || password.isEmpty) {
-      setState(() {
-        _errorMessage = "All fields are required";
-      });
+      setState(() => _errorMessage = 'Please accept terms and conditions');
       return;
     }
 
@@ -55,40 +42,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _errorMessage = null;
     });
 
-    final result = await _authService.register(username, email, password);
+    final result = await _authService.register(
+      usernameController.text.trim(),
+      emailController.text.trim(),
+      passwordController.text.trim(),
+    );
 
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() => _isLoading = false);
 
-    if (result['success']) {
-      // After registration, log the user in
-      final loginResult = await _authService.login(email, password);
-
-      if (loginResult['success']) {
-        if (mounted) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const CoursesScreen()),
-            (route) => false,
-          );
-        }
+      if (result['success'] == true) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const CoursesScreen()),
+        );
       } else {
-        if (mounted) {
-          // Registration succeeded but login failed, go back to login screen
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text("Registration successful. Please log in."),
-              backgroundColor: ColorConstants.successColor,
-            ),
-          );
-        }
+        setState(() => _errorMessage = result['message']);
       }
-    } else {
-      setState(() {
-        _errorMessage = result['message'];
-      });
     }
   }
 

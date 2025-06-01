@@ -1,134 +1,106 @@
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   // Base URL for your Spring backend API
-  final String baseUrl = 'http://localhost:8080';
+  final _storage = const FlutterSecureStorage();
+  final String baseUrl = 'http://192.168.1.168:8080';
 
-  // Register a new user
-  Future<Map<String, dynamic>> register(
-    String username,
-    String email,
-    String password,
-  ) async {
-    final url = Uri.parse('$baseUrl/register');
+  // Сохраняем токен и дату истечения
+  Future<void> _saveAuthData(String token, String expirationMillis) async {
+    await _storage.write(key: 'auth_token', value: token);
+    await _storage.write(key: 'token_expiry', value: expirationMillis);
+  }
 
+  // Проверка валидности токена
+  Future<bool> isTokenValid() async {
+    final expiry = await _storage.read(key: 'token_expiry');
+    if (expiry == null) return false;
+    return DateTime.now().isBefore(DateTime.parse(expiry));
+  }
+
+  // Получение токена
+  Future<String?> getToken() async {
+    return await _storage.read(key: 'auth_token');
+  }
+
+  // Парсинг ошибок от сервера
+  String _parseError(dynamic data) {
+    if (data is List) {
+      return data.map((e) => e['message']?.toString() ?? '').join('\n');
+    } else if (data is Map) {
+      return data['message']?.toString() ?? 'Unknown error';
+    }
+    return 'Unknown error format';
+  }
+
+  // Регистрация
+  Future<Map<String, dynamic>> register(String name, String email, String password) async {
     try {
       final response = await http.post(
-        url,
+        Uri.parse('$baseUrl/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'name': username,
+          'name': name,
           'email': email,
           'password': password,
         }),
       );
 
       final data = jsonDecode(response.body);
-
-      // Если data — это список (валидационные ошибки)
-      if (data is List) {
-        return {
-          'success': false,
-          'message': data.map((e) => e['message']).join('\n'),
-        };
-      }
-
-      // Если data — это Map
-      if (response.statusCode == 200) {
-        return {'success': true, 'data': data};
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await _saveAuthData(
+          data['token'],
+          data['expiration'].toString(),
+        );
+        return {'success': true};
       } else {
         return {
-          'success': data['success'] ?? false,
-          'message':
-              data['message'] ??
-              'Registration failed. Server returned ${response.statusCode}',
+          'success': false,
+          'message': _parseError(data),
         };
       }
     } catch (e) {
-      return {'success': false, 'message': 'Registration failed. Error: $e'};
+      return {'success': false, 'message': 'Network error: $e'};
     }
   }
-
-  // Login user
+  // Логин
   Future<Map<String, dynamic>> login(String email, String password) async {
-    final url = Uri.parse('$baseUrl/login');
-
     try {
       final response = await http.post(
-        url,
+        Uri.parse('$baseUrl/login'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
       );
 
       final data = jsonDecode(response.body);
-
-      // Если data — это список (валидационные ошибки)
-      if (data is List) {
-        return {
-          'success': false,
-          'message': data.map((e) => e['message']).join('\n'),
-        };
-      }
-
-      // Если data — это Map
       if (response.statusCode == 200) {
-        // Save user info to local storage if login is successful
-        await _saveUserInfo(data);
-        return {
-          'success': true,
-          'message': data['message'] ?? 'Login successful',
-          'user': data,
-        };
+        await _saveAuthData(
+          data['token'],
+          data['expiration'].toString(),
+        );
+        return {'success': true};
       } else {
         return {
-          'success': data['success'] ?? false,
-          'message':
-              data['message'] ??
-              'Login failed. Server returned ${response.statusCode}',
+          'success': false,
+          'message': _parseError(data),
         };
       }
     } catch (e) {
-      return {'success': false, 'message': 'Login failed. Error: $e'};
+      return {'success': false, 'message': 'Network error: $e'};
     }
   }
 
-  // Save user info to SharedPreferences
-  Future<void> _saveUserInfo(Map<String, dynamic> userData) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', true);
-    if (userData['token'] != null) {
-      await prefs.setString('token', userData['token']);
-    }
-    if (userData['expiration'] != null) {
-      await prefs.setString('expiration', userData['expiration'].toString());
-    }
-  }
-
-  // Check if user is logged in
-  Future<bool> isLoggedIn() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isLoggedIn') ?? false;
-  }
-
-  // Logout user
+  // Выход
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await _storage.delete(key: 'auth_token');
+    await _storage.delete(key: 'token_expiry');
   }
 
-  // Get current user info
-  Future<Map<String, dynamic>?> getCurrentUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
-    if (!isLoggedIn) return null;
-
-    return {
-      'userId': prefs.getString('userId'),
-      'username': prefs.getString('username'),
-      'email': prefs.getString('email'),
-    };
-  }
 }
