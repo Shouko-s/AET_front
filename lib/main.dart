@@ -1,4 +1,4 @@
-import 'package:aet_app/pages/login_page.dart';
+import 'package:aet_app/features/auth/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -10,6 +10,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: LoginPage());
+    return MaterialApp(debugShowCheckedModeBanner: false, home: LoginScreen());
   }
 }

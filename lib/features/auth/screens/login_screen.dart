@@ -1,9 +1,9 @@
 import 'package:aet_app/components/my_button.dart';
 import 'package:aet_app/components/my_textfield.dart';
 import 'package:aet_app/core/constants/color_constants.dart';
-import 'package:aet_app/core/routes/app_routes.dart';
 import 'package:aet_app/features/courses/screens/courses_screen.dart';
 import 'package:aet_app/features/auth/screens/register_screen.dart';
+import 'package:aet_app/features/auth/screens/forgot_password_screen.dart';
 import 'package:aet_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
@@ -130,12 +130,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Text(
-                        "Forgot password?",
-                        style: TextStyle(
-                          fontSize: smallFontSize,
-                          color: ColorConstants.primaryColor,
-                          fontWeight: FontWeight.w700,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => const ForgotPasswordScreen(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          "Forgot password?",
+                          style: TextStyle(
+                            fontSize: smallFontSize,
+                            color: ColorConstants.primaryColor,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ],
