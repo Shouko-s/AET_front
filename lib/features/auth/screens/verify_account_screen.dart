@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:aet_app/features/courses/screens/courses_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:aet_app/core/constants/globals.dart';
 
 class VerifyAccountScreen extends StatefulWidget {
   final String email;
@@ -53,7 +54,7 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
     });
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:8080/request-verification-code'),
+        Uri.parse('$baseUrl/request-verification-code'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': widget.email}),
       );
@@ -89,7 +90,7 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
     });
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:8080/verify-code'),
+        Uri.parse('$baseUrl/verify-code'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': widget.email, 'code': code}),
       );
