@@ -101,6 +101,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final horizontalPadding = screenWidth * 0.08;
     final titleFontSize = screenWidth * 0.08;
     final smallFontSize = screenWidth * 0.04;
+    final iconSize = screenWidth * 0.22;
 
     return Scaffold(
       backgroundColor: ColorConstants.backgroundColor,
@@ -122,7 +123,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 children: [
                   Icon(
                     Icons.lock_reset,
-                    size: screenWidth * 0.22,
+                    size: iconSize,
                     color: ColorConstants.primaryColor,
                   ),
                   const SizedBox(height: 18),
