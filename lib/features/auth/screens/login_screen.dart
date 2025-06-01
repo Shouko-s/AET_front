@@ -29,41 +29,28 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _login() async {
+  Future<void> _login() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
+    final result = await _authService.login(
+      emailController.text.trim(),
+      passwordController.text.trim(),
+    );
 
-    if (email.isEmpty || password.isEmpty) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = "Email and password cannot be empty";
-      });
-      return;
-    }
+    if (mounted) {
+      setState(() => _isLoading = false);
 
-    final result = await _authService.login(email, password);
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (result['success']) {
-      // Navigate to courses page on successful login
-      if (mounted) {
+      if (result['success'] == true) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const CoursesScreen()),
+          MaterialPageRoute(builder: (_) => const CoursesScreen()),
         );
+      } else {
+        setState(() => _errorMessage = result['message']);
       }
-    } else {
-      setState(() {
-        _errorMessage = result['message'];
-      });
     }
   }
 
