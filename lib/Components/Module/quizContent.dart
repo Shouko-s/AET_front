@@ -1,30 +1,41 @@
+// lib/features/courses/models/quiz_content.dart
+
 import 'contentItem.dart';
-import 'dart:math';
+import 'package:flutter/material.dart';
+
+class QuizOption {
+  final String text;
+  final bool isCorrect;
+
+  QuizOption({
+    required this.text,
+    required this.isCorrect,
+  });
+
+  factory QuizOption.fromJson(Map<String, dynamic> json) {
+    return QuizOption(
+      text: json['text'] as String,
+      isCorrect: json['isCorrect'] as bool,
+    );
+  }
+}
 
 class QuizContent extends ContentItem {
   final String question;
-  final String correctAnswer;
-  final List<String> additionalAnswers;
+  final List<QuizOption> options;
 
   QuizContent({
     required this.question,
-    required this.correctAnswer,
-    required this.additionalAnswers,
+    required this.options,
   }) : super(type: 'quiz');
 
   factory QuizContent.fromJson(Map<String, dynamic> json) {
+    final opts = (json['options'] as List<dynamic>)
+        .map((e) => QuizOption.fromJson(e as Map<String, dynamic>))
+        .toList();
     return QuizContent(
       question: json['question'] as String,
-      correctAnswer: json['correct_answer'] as String,
-      additionalAnswers:
-      List<String>.from(json['additional_answer'] as List<dynamic>),
+      options: opts,
     );
-  }
-
-  /// Возвращает весь список ответов в случайном порядке
-  List<String> getShuffledAnswers() {
-    final all = List<String>.from(additionalAnswers)..add(correctAnswer);
-    all.shuffle(Random());
-    return all;
   }
 }

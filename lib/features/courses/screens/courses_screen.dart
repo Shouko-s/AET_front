@@ -69,7 +69,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
       } else {
         String message = 'Ошибка сервера: ${response.statusCode}';
         try {
-          final decoded = jsonDecode(response.body);
+          final decoded = jsonDecode(utf8.decode(response.bodyBytes));
           if (decoded is Map && decoded.containsKey('message')) {
             message = decoded['message'].toString();
           }
@@ -221,7 +221,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                ModuleDetailScreen(moduleId: module.id),
+                ModuleScreen(moduleId: module.id),
           ),
         );
       },

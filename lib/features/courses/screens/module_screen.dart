@@ -1,37 +1,39 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:aet_app/core/constants/globals.dart';
 import 'package:aet_app/Components/Module/moduleDetail.dart';
 import 'package:aet_app/Components/Module/contentItem.dart';
-import 'package:aet_app/Components/Module/textContent.dart';
+import 'package:aet_app/Components/Module/headingContent.dart';
 import 'package:aet_app/Components/Module/quizContent.dart';
+import 'package:aet_app/Components/Module/listContent.dart';
+import 'package:aet_app/Components/Module/paragraphContent.dart';
+import 'package:aet_app/Components/Module/quoteContent.dart';
+import 'package:aet_app/Components/Module/tableContent.dart';
 import 'package:aet_app/core/constants/color_constants.dart';
+import 'package:flutter_html/flutter_html.dart';
 
-class ModuleDetailScreen extends StatefulWidget {
+class ModuleScreen extends StatefulWidget {
   final int moduleId;
-  const ModuleDetailScreen({Key? key, required this.moduleId})
+  const ModuleScreen({Key? key, required this.moduleId})
       : super(key: key);
 
   @override
-  State<ModuleDetailScreen> createState() => _ModuleDetailScreenState();
+  State<ModuleScreen> createState() => _ModuleDetailScreenState();
 }
 
-class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
+class _ModuleDetailScreenState extends State<ModuleScreen> {
   final _storage = const FlutterSecureStorage();
-  static const String _baseUrl = 'http://192.168.1.168:8080';
 
   bool _loading = true;
   String? _errorMessage;
   ModuleDetail? _moduleDetail;
 
-  /// Словарь: индекс блока → список ответов в том порядке, как в БД
-  final Map<int, List<String>> _answersPerQuiz = {};
-
-  /// Для каждого quiz-блока: выбранный ответ (или null) и правильность
-  final Map<int, String?> _selectedAnswers = {};
+  /// Для каждого quiz-блока: выбранный индекс опции (или -1), и флаг, правильно ли
+  final Map<int, int> _selectedOptionIndex = {};
   final Map<int, bool> _answeredCorrectly = {};
 
   @override
@@ -45,8 +47,7 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
       _loading = true;
       _errorMessage = null;
       _moduleDetail = null;
-      _answersPerQuiz.clear();
-      _selectedAnswers.clear();
+      _selectedOptionIndex.clear();
       _answeredCorrectly.clear();
     });
 
@@ -69,23 +70,8 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
       );
 
       if (response.statusCode == 200) {
-        // Парсим JSON в ModuleDetail
         final data = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
         final detail = ModuleDetail.fromJson(data);
-
-        // Для каждого quiz-блока сохраняем список ответов в порядке из БД
-        for (int i = 0; i < detail.content.length; i++) {
-          final item = detail.content[i];
-          if (item is QuizContent) {
-            // Берём дополнительные ответы в том порядке, как пришли, и добавляем correct_answer в конец
-            final answers = <String>[
-              ...item.additionalAnswers,
-              item.correctAnswer,
-            ];
-            _answersPerQuiz[i] = answers;
-          }
-        }
-
         setState(() {
           _moduleDetail = detail;
           _loading = false;
@@ -162,10 +148,18 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];
-          if (item is TextContent) {
-            return _buildTextBlock(item);
+          if (item is HeadingContent) {
+            return _buildHeading(item);
+          } else if (item is ParagraphContent) {
+            return _buildParagraph(item);
+          } else if (item is ListContent) {
+            return _buildList(item);
+          } else if (item is QuoteContent) {
+            return _buildQuote(item);
+          } else if (item is TableContent) {
+            return _buildTable(item);
           } else if (item is QuizContent) {
-            return _buildQuizBlock(item, index);
+            return _buildQuiz(item, index);
           } else {
             return const SizedBox.shrink();
           }
@@ -174,20 +168,137 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
     );
   }
 
-  Widget _buildTextBlock(TextContent textItem) {
+  Widget _buildHeading(HeadingContent item) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Text(
-        textItem.text,
-        style: const TextStyle(fontSize: 16, height: 1.5),
-        textAlign: TextAlign.justify,
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Html(
+        data: item.text,
+        style: {
+          "*": Style.fromTextStyle(item.getTextStyle(screenWidth))
+        },
       ),
     );
   }
 
-  Widget _buildQuizBlock(QuizContent quizItem, int idx) {
-    final answers = _answersPerQuiz[idx]!;
-    final selected = _selectedAnswers[idx];
+  Widget _buildParagraph(ParagraphContent item) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Html(
+        data: item.text,
+        style: {
+          // Ставим общий TextStyle, который вы возвращаете в getTextStyle()
+          // и одновременно задаём выравнивание justify для всего текста.
+          "*": Style.fromTextStyle(item.getTextStyle())
+              .copyWith(textAlign: TextAlign.justify),
+        },
+      ),
+    );
+  }
+
+  Widget _buildList(ListContent item) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: item.items.map((listItem) {
+          // Собираем строку из «буллета» + сам текст (возможно с тегами)
+          final htmlString = '${item.bulletSymbol()}$listItem';
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Html(
+              data: htmlString,
+              style: {
+                "*": Style.fromTextStyle(item.getItemTextStyle()),
+              },
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildQuote(QuoteContent item) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0, left: 12.0),
+      child: IntrinsicHeight(
+        // IntrinsicHeight позволит дочерним элементам внутри Row понять, что нужно растянуться по высоте
+        child: Row(
+          children: [
+            // Полоска слева теперь растягивается на всю высоту текста
+            Container(
+              width: 4,
+              color: Colors.grey,
+              margin: const EdgeInsets.only(right: 8.0),
+              // Здесь explicit: height: double.infinity позволит занять всю высоту родителя (IntrinsicHeight)
+              height: double.infinity,
+            ),
+            Expanded(
+              child: Html(
+                data: item.text,
+                style: {
+                  "*": Style.fromTextStyle(item.getTextStyle())
+                      .copyWith(textAlign: TextAlign.justify),
+                  "i": Style(fontStyle: FontStyle.italic),
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+
+  Widget _buildTable(TableContent item) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          headingRowColor: MaterialStateColor.resolveWith(
+                (states) => Colors.grey.shade200,
+          ),
+          columns: item.headers.map((h) {
+            // Если в заголовке тоже есть HTML-теги, например "<b>Заголовок</b>"
+            return DataColumn(
+              label: Html(
+                data: h,
+                style: {
+                  "*": Style(
+                    fontWeight: FontWeight.bold,
+                    fontSize: FontSize(14),
+                  ),
+                },
+              ),
+            );
+          }).toList(),
+          rows: item.rows.map((row) {
+            return DataRow(
+              cells: row.map((cell) {
+                return DataCell(
+                  Html(
+                    data: cell,
+                    style: {
+                      "*": Style(
+                        fontSize: FontSize(14),
+                      ),
+                    },
+                  ),
+                );
+              }).toList(),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuiz(QuizContent item, int idx) {
+    final options = item.options;
+    final selectedIndex = _selectedOptionIndex[idx] ?? -1;
     final answeredCorrect = _answeredCorrectly[idx];
 
     return Card(
@@ -199,44 +310,59 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              quizItem.question,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+            // Сам вопрос — теперь Html(data: item.question)
+            Html(
+              data: item.question,
+              style: {
+                "*": Style(
+                  fontSize: FontSize(16),
+                  fontWeight: FontWeight.bold,
+                ),
+                // Можно добавить стили для <b>, <i> и т. д.
+                "b": Style(fontWeight: FontWeight.bold),
+                "i": Style(fontStyle: FontStyle.italic),
+              },
             ),
             const SizedBox(height: 8),
-            ...answers.map((answer) {
+            ...List.generate(options.length, (i) {
+              final opt = options[i];
               Color? tileColor;
               if (answeredCorrect != null) {
-                if (answer == quizItem.correctAnswer) {
+                if (opt.isCorrect) {
                   tileColor = Colors.green.shade100;
-                } else if (answer == selected && !answeredCorrect) {
+                } else if (i == selectedIndex && !answeredCorrect) {
                   tileColor = Colors.red.shade100;
                 }
               }
               return Container(
                 color: tileColor,
-                child: RadioListTile<String>(
-                  title: Text(answer),
-                  value: answer,
-                  groupValue: selected,
+                child: RadioListTile<int>(
+                  // Здесь тоже меняем Text(opt.text) на Html(data: opt.text)
+                  title: Html(
+                    data: opt.text,
+                    style: {
+                      "*": Style(fontSize: FontSize(14)),
+                      "b": Style(fontWeight: FontWeight.bold),
+                      "i": Style(fontStyle: FontStyle.italic),
+                    },
+                  ),
+                  value: i,
+                  groupValue: selectedIndex,
                   onChanged: (answeredCorrect != null)
                       ? null
                       : (val) {
                     setState(() {
-                      _selectedAnswers[idx] = val;
-                      _answeredCorrectly[idx] =
-                      (val == quizItem.correctAnswer);
+                      _selectedOptionIndex[idx] = val!;
+                      _answeredCorrectly[idx] = opt.isCorrect;
                     });
                   },
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
     );
   }
 }
+

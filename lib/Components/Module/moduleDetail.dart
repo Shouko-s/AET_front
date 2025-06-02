@@ -1,3 +1,5 @@
+// lib/features/courses/models/module_detail.dart
+
 import 'contentItem.dart';
 
 class ModuleDetail {
