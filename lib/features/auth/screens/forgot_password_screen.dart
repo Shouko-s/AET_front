@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:aet_app/core/constants/color_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:aet_app/features/auth/screens/reset_password_screen.dart';
+import 'package:aet_app/services/auth_service.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -19,6 +20,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   bool _canResend = false;
   int _secondsLeft = 30;
   Timer? _timer;
+  final AuthService _authService = AuthService();
 
   @override
   void dispose() {
@@ -40,15 +42,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       _isLoading = true;
       _errorMessage = null;
     });
-    // Здесь должен быть реальный запрос на backend для отправки кода
-    await Future.delayed(const Duration(seconds: 2));
+    final result = await _authService.requestPasswordResetCode(email);
     setState(() {
       _isLoading = false;
-      _codeSent = true;
-      _canResend = false;
-      _secondsLeft = 30;
     });
-    _startResendTimer();
+    if (result['success'] == true) {
+      setState(() {
+        _codeSent = true;
+        _canResend = false;
+        _secondsLeft = 30;
+      });
+      _startResendTimer();
+    } else {
+      setState(() {
+        _errorMessage = result['message'] ?? 'Failed to send code';
+      });
+    }
   }
 
   void _startResendTimer() {
@@ -71,8 +80,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     _getCode();
   }
 
-  void _confirmCode() {
-    // Здесь должна быть логика подтверждения кода
+  void _confirmCode() async {
     final code = codeController.text.trim();
     if (code.isEmpty) {
       setState(() {
@@ -80,18 +88,33 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       });
       return;
     }
-    // TODO: отправить code и email на backend
-    // Если код подтверждён успешно:
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => ResetPasswordScreen(
-              email: emailController.text.trim(),
-              code: code,
-            ),
-      ),
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    final result = await _authService.verifyResetCode(
+      emailController.text.trim(),
+      code,
     );
+    setState(() {
+      _isLoading = false;
+    });
+    if (result['success'] == true) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder:
+              (context) => ResetPasswordScreen(
+                email: emailController.text.trim(),
+                code: code,
+              ),
+        ),
+      );
+    } else {
+      setState(() {
+        _errorMessage = result['message'] ?? 'Invalid or expired code';
+      });
+    }
   }
 
   @override

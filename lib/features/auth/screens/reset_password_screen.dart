@@ -1,6 +1,7 @@
 import 'package:aet_app/core/constants/color_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:aet_app/features/auth/screens/login_screen.dart';
+import 'package:aet_app/services/auth_service.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final String email;
@@ -21,6 +22,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   String? _errorMessage;
   bool _isLoading = false;
   bool _success = false;
+  final AuthService _authService = AuthService();
 
   void _changePassword() async {
     final password = passwordController.text.trim();
@@ -47,46 +49,54 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       _isLoading = true;
       _errorMessage = null;
     });
-    // Здесь должен быть реальный запрос на backend для смены пароля
-    await Future.delayed(const Duration(seconds: 2));
+    final result = await _authService.resetPassword(
+      widget.email,
+      widget.code,
+      password,
+    );
     setState(() {
       _isLoading = false;
-      _success = true;
     });
-    if (mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-        (route) => false,
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: ColorConstants.successColor.withOpacity(0.95),
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          content: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.check_circle, color: Colors.white, size: 28),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Password changed successfully!',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 17,
+    if (result['success'] == true) {
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          (route) => false,
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: ColorConstants.successColor.withOpacity(0.95),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.check_circle, color: Colors.white, size: 28),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Password changed successfully!',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
+        );
+      }
+    } else {
+      setState(() {
+        _errorMessage = result['message'] ?? 'Failed to reset password';
+      });
     }
   }
 
