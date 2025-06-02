@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class MyTextfield extends StatelessWidget {
+class MyTextfield extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
   final bool obscureText;
@@ -15,6 +15,19 @@ class MyTextfield extends StatelessWidget {
   });
 
   @override
+  State<MyTextfield> createState() => _MyTextfieldState();
+}
+
+class _MyTextfieldState extends State<MyTextfield> {
+  late bool _obscure;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscure = widget.obscureText;
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Get screen dimensions for responsive sizing
     final screenWidth = MediaQuery.of(context).size.width;
@@ -26,7 +39,7 @@ class MyTextfield extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            labelText,
+            widget.labelText,
             style: TextStyle(
               fontSize: screenWidth * 0.04,
               fontWeight: FontWeight.w500,
@@ -35,8 +48,8 @@ class MyTextfield extends StatelessWidget {
           ),
           SizedBox(height: screenHeight * 0.01),
           TextField(
-            controller: controller,
-            obscureText: obscureText,
+            controller: widget.controller,
+            obscureText: _obscure,
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
                 borderSide: const BorderSide(color: Colors.grey),
@@ -52,11 +65,25 @@ class MyTextfield extends StatelessWidget {
               ),
               fillColor: Colors.grey.shade100,
               filled: true,
-              hintText: hintText,
+              hintText: widget.hintText,
               contentPadding: EdgeInsets.symmetric(
                 horizontal: screenWidth * 0.04,
                 vertical: screenHeight * 0.02,
               ),
+              suffixIcon:
+                  widget.obscureText
+                      ? IconButton(
+                        icon: Icon(
+                          _obscure ? Icons.visibility_off : Icons.visibility,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscure = !_obscure;
+                          });
+                        },
+                      )
+                      : null,
             ),
             style: TextStyle(
               fontWeight: FontWeight.w600,
