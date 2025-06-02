@@ -2,7 +2,6 @@ import 'package:aet_app/components/my_button.dart';
 import 'package:aet_app/components/my_checkbox.dart';
 import 'package:aet_app/components/my_textfield.dart';
 import 'package:aet_app/core/constants/color_constants.dart';
-import 'package:aet_app/features/courses/screens/courses_screen.dart';
 import 'package:aet_app/features/auth/screens/verify_account_screen.dart';
 import 'package:aet_app/services/auth_service.dart';
 import 'package:flutter/material.dart';

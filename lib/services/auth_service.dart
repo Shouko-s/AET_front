@@ -36,59 +36,45 @@ class AuthService {
   }
 
   // Регистрация
-  Future<Map<String, dynamic>> register(String name, String email, String password) async {
+  Future<Map<String, dynamic>> register(
+    String name,
+    String email,
+    String password,
+  ) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/register'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'name': name,
-          'email': email,
-          'password': password,
-        }),
+        body: jsonEncode({'name': name, 'email': email, 'password': password}),
       );
 
       final data = jsonDecode(response.body);
       if (response.statusCode == 200 || response.statusCode == 201) {
-        await _saveAuthData(
-          data['token'],
-          data['expiration'].toString(),
-        );
+        await _saveAuthData(data['token'], data['expiration'].toString());
         return {'success': true};
       } else {
-        return {
-          'success': false,
-          'message': _parseError(data),
-        };
+        return {'success': false, 'message': _parseError(data)};
       }
     } catch (e) {
       return {'success': false, 'message': 'Network error: $e'};
     }
   }
+
   // Логин
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/login'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
+        body: jsonEncode({'email': email, 'password': password}),
       );
 
       final data = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        await _saveAuthData(
-          data['token'],
-          data['expiration'].toString(),
-        );
+        await _saveAuthData(data['token'], data['expiration'].toString());
         return {'success': true};
       } else {
-        return {
-          'success': false,
-          'message': _parseError(data),
-        };
+        return {'success': false, 'message': _parseError(data)};
       }
     } catch (e) {
       return {'success': false, 'message': 'Network error: $e'};
@@ -101,5 +87,74 @@ class AuthService {
     await _storage.delete(key: 'token_expiry');
   }
 
+  Future<Map<String, dynamic>> requestPasswordResetCode(String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/request-verification-code'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}),
+      );
+      if (response.statusCode == 200) {
+        return {'success': true};
+      } else {
+        return {
+          'success': false,
+          'message': jsonDecode(response.body)['message'] ?? 'Error',
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Network error: $e'};
+    }
+  }
 
+  Future<Map<String, dynamic>> verifyResetCode(
+    String email,
+    String code,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/verify-code'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'code': code}),
+      );
+      if (response.statusCode == 200) {
+        return {'success': true};
+      } else {
+        return {
+          'success': false,
+          'message': jsonDecode(response.body)['message'] ?? 'Error',
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Network error: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> resetPassword(
+    String email,
+    String code,
+    String newPassword,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/reset-password'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'code': code,
+          'newPassword': newPassword,
+        }),
+      );
+      if (response.statusCode == 200) {
+        return {'success': true};
+      } else {
+        return {
+          'success': false,
+          'message': jsonDecode(response.body)['message'] ?? 'Error',
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Network error: $e'};
+    }
+  }
 }
