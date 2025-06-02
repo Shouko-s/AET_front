@@ -38,4 +38,14 @@ class QuizContent extends ContentItem {
       options: opts,
     );
   }
+
+  /// Возвращает TextStyle для текста вариантов ответа
+  TextStyle getOptionTextStyle() {
+    return const TextStyle(
+      fontSize: 16,
+      height: 1.5,
+      color: Color(0xFF333333),
+      fontWeight: FontWeight.w400
+    );
+  }
 }

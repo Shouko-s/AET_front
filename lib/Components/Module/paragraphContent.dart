@@ -17,6 +17,6 @@ class ParagraphContent extends ContentItem {
   }
 
   TextStyle getTextStyle() {
-    return const TextStyle(fontSize: 16, height: 1.5, color: Color(0xFF333333));
+    return const TextStyle(fontSize: 18, height: 1.3, color: Color(0xFF333333), fontWeight: FontWeight.w500);
   }
 }

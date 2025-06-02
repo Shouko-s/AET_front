@@ -191,6 +191,7 @@ class _ModuleDetailScreenState extends State<ModuleScreen> {
           // и одновременно задаём выравнивание justify для всего текста.
           "*": Style.fromTextStyle(item.getTextStyle())
               .copyWith(textAlign: TextAlign.justify),
+          "b":Style(color: ColorConstants.primaryColor, fontWeight: FontWeight.w900),
         },
       ),
     );
@@ -318,9 +319,6 @@ class _ModuleDetailScreenState extends State<ModuleScreen> {
                   fontSize: FontSize(16),
                   fontWeight: FontWeight.bold,
                 ),
-                // Можно добавить стили для <b>, <i> и т. д.
-                "b": Style(fontWeight: FontWeight.bold),
-                "i": Style(fontStyle: FontStyle.italic),
               },
             ),
             const SizedBox(height: 8),
@@ -341,9 +339,7 @@ class _ModuleDetailScreenState extends State<ModuleScreen> {
                   title: Html(
                     data: opt.text,
                     style: {
-                      "*": Style(fontSize: FontSize(14)),
-                      "b": Style(fontWeight: FontWeight.bold),
-                      "i": Style(fontStyle: FontStyle.italic),
+                      "*": Style.fromTextStyle(item.getOptionTextStyle())
                     },
                   ),
                   value: i,
