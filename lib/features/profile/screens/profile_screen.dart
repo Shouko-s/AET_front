@@ -176,9 +176,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         context,
                         Icons.person_outline,
                         "Edit Profile",
-                        () {
+                        () async {
                           if (_username != null && _email != null) {
-                            Navigator.push(
+                            await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder:
@@ -188,6 +188,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                               ),
                             );
+                            _fetchUserProfile();
                           }
                         },
                       ),
