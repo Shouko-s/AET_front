@@ -92,6 +92,39 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     });
   }
 
+  Widget _sectionTitle(String text, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, color: ColorConstants.primaryColor, size: 26),
+        const SizedBox(width: 10),
+        Text(
+          text,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: ColorConstants.primaryColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _card({required Widget child}) {
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: ColorConstants.primaryColor.withOpacity(0.12)),
+      ),
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+        child: child,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -108,124 +141,230 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: screenWidth * 0.06,
-            vertical: 24,
+            horizontal: screenWidth * 0.04,
+            vertical: 18,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Change Name',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: smallFontSize + 2,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Name',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _updateName,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorConstants.primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child:
-                    _isLoading
-                        ? const CircularProgressIndicator()
-                        : const Text('Save Name'),
-              ),
-              const SizedBox(height: 32),
-              Text(
-                'Change Email',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: smallFontSize + 2,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'New Email',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Current Password',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _requestEmailChange,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorConstants.primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child:
-                    _isLoading
-                        ? const CircularProgressIndicator()
-                        : const Text('Request Email Change'),
-              ),
-              if (_emailChangeRequested) ...[
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _codeController,
-                  decoration: InputDecoration(
-                    labelText: 'Verification Code',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+              _sectionTitle('Change Name', Icons.person_outline),
+              _card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Name',
+                        prefixIcon: Icon(
+                          Icons.person,
+                          color: ColorConstants.primaryColor,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[50],
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _confirmEmailChange,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ColorConstants.primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: _isLoading ? null : _updateName,
+                      icon: const Icon(Icons.save, color: Colors.white),
+                      label:
+                          _isLoading
+                              ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : const Text(
+                                'Save Name',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorConstants.primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ),
-                  child:
-                      _isLoading
-                          ? const CircularProgressIndicator()
-                          : const Text('Confirm Email Change'),
+                  ],
                 ),
-              ],
+              ),
+              _sectionTitle('Change Email', Icons.email_outlined),
+              _card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: 'New Email',
+                        prefixIcon: Icon(
+                          Icons.email,
+                          color: ColorConstants.primaryColor,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[50],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Current Password',
+                        prefixIcon: Icon(
+                          Icons.lock,
+                          color: ColorConstants.primaryColor,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[50],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: _isLoading ? null : _requestEmailChange,
+                      icon: const Icon(Icons.send, color: Colors.white),
+                      label:
+                          _isLoading
+                              ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : const Text(
+                                'Request Email Change',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorConstants.primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    if (_emailChangeRequested) ...[
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _codeController,
+                        decoration: InputDecoration(
+                          labelText: 'Verification Code',
+                          prefixIcon: Icon(
+                            Icons.verified,
+                            color: ColorConstants.primaryColor,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[50],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton.icon(
+                        onPressed: _isLoading ? null : _confirmEmailChange,
+                        icon: const Icon(
+                          Icons.check_circle_outline,
+                          color: Colors.white,
+                        ),
+                        label:
+                            _isLoading
+                                ? const SizedBox(
+                                  height: 18,
+                                  width: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                                : const Text(
+                                  'Confirm Email Change',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorConstants.primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
               if (_errorMessage != null) ...[
                 const SizedBox(height: 16),
-                Text(
-                  _errorMessage!,
-                  style: TextStyle(color: ColorConstants.errorColor),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: ColorConstants.errorColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline, color: Colors.red),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _errorMessage!,
+                          style: TextStyle(
+                            color: ColorConstants.errorColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
               if (_successMessage != null) ...[
                 const SizedBox(height: 16),
-                Text(
-                  _successMessage!,
-                  style: TextStyle(color: ColorConstants.successColor),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: ColorConstants.successColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.check_circle_outline,
+                        color: Colors.green,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _successMessage!,
+                          style: TextStyle(
+                            color: ColorConstants.successColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ],
