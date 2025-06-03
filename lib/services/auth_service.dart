@@ -157,4 +157,82 @@ class AuthService {
       return {'success': false, 'message': 'Network error: $e'};
     }
   }
+
+  Future<Map<String, dynamic>> updateName(String name) async {
+    try {
+      final token = await getToken();
+      if (token == null)
+        return {'success': false, 'message': 'Not authenticated'};
+      final response = await http.post(
+        Uri.parse('$baseUrl/user/update-name'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'name': name}),
+      );
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        return {'success': true};
+      } else {
+        return {'success': false, 'message': _parseError(data)};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Network error: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> requestEmailChange(
+    String newEmail,
+    String password,
+  ) async {
+    try {
+      final token = await getToken();
+      if (token == null)
+        return {'success': false, 'message': 'Not authenticated'};
+      final response = await http.post(
+        Uri.parse('$baseUrl/user/request-email-change'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'email': newEmail, 'password': password}),
+      );
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        return {'success': true};
+      } else {
+        return {'success': false, 'message': _parseError(data)};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Network error: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> confirmEmailChange(
+    String newEmail,
+    String code,
+  ) async {
+    try {
+      final token = await getToken();
+      if (token == null)
+        return {'success': false, 'message': 'Not authenticated'};
+      final response = await http.post(
+        Uri.parse('$baseUrl/user/confirm-email-change'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'email': newEmail, 'verificationCode': code}),
+      );
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        return {'success': true};
+      } else {
+        return {'success': false, 'message': _parseError(data)};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Network error: $e'};
+    }
+  }
 }
