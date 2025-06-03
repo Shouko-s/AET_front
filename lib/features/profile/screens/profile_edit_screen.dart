@@ -128,7 +128,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final smallFontSize = screenWidth * 0.04;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),

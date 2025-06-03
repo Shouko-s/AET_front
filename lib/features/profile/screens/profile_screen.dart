@@ -1,7 +1,6 @@
 import 'package:aet_app/components/my_button.dart';
 import 'package:aet_app/core/constants/color_constants.dart';
 import 'package:aet_app/core/constants/globals.dart';
-import 'package:aet_app/core/routes/app_routes.dart';
 import 'package:aet_app/features/auth/screens/login_screen.dart';
 import 'package:aet_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
