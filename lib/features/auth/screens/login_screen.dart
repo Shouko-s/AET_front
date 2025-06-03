@@ -6,6 +6,7 @@ import 'package:aet_app/features/auth/screens/register_screen.dart';
 import 'package:aet_app/features/auth/screens/forgot_password_screen.dart';
 import 'package:aet_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -99,6 +100,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: 'email',
                   obscureText: false,
                   labelText: "Email",
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z0-9@._-]'),
+                    ),
+                  ],
+                  keyboardType: TextInputType.emailAddress,
                 ),
 
                 SizedBox(height: verticalSpacing),
@@ -108,6 +115,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: 'password',
                   obscureText: true,
                   labelText: "Password",
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z0-9!@#\$%^&*()_+=\-\[\]{};:\"|,.<>\/?]'),
+                    ),
+                  ],
+                  keyboardType: TextInputType.visiblePassword,
                 ),
 
                 SizedBox(height: verticalSpacing * 0.2),

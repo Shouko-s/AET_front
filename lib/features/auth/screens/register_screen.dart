@@ -5,6 +5,7 @@ import 'package:aet_app/core/constants/color_constants.dart';
 import 'package:aet_app/features/auth/screens/verify_account_screen.dart';
 import 'package:aet_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -124,6 +125,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hintText: "name",
                   obscureText: false,
                   labelText: "Name",
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                  ],
+                  keyboardType: TextInputType.name,
                 ),
 
                 SizedBox(height: verticalSpacing),
@@ -133,6 +138,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hintText: "email",
                   obscureText: false,
                   labelText: "Email",
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z0-9@._-]'),
+                    ),
+                  ],
+                  keyboardType: TextInputType.emailAddress,
                 ),
 
                 SizedBox(height: verticalSpacing),
@@ -142,6 +153,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hintText: "password",
                   obscureText: true,
                   labelText: "Password",
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z0-9!@#\$%^&*()_+=\-\[\]{};:\"|,.<>\/?]'),
+                    ),
+                  ],
+                  keyboardType: TextInputType.visiblePassword,
                 ),
 
                 SizedBox(height: verticalSpacing * 0.5),

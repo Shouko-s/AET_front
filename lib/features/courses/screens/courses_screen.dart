@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:aet_app/core/constants/globals.dart';
+import 'package:flutter/services.dart';
 
 // Импортируем модель из файла, который мы создали:
 import 'package:aet_app/Components/module.dart';
@@ -58,9 +59,10 @@ class _CoursesScreenState extends State<CoursesScreen> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        final List<Module> loadedModules = data
-            .map((item) => Module.fromJson(item as Map<String, dynamic>))
-            .toList();
+        final List<Module> loadedModules =
+            data
+                .map((item) => Module.fromJson(item as Map<String, dynamic>))
+                .toList();
 
         setState(() {
           _modules = loadedModules;
@@ -100,128 +102,152 @@ class _CoursesScreenState extends State<CoursesScreen> {
     return Scaffold(
       backgroundColor: ColorConstants.backgroundColor,
       body: SafeArea(
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _errorMessage != null
-            ? Center(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-            child: Text(
-              _errorMessage!,
-              style: const TextStyle(color: Colors.red),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        )
-            : ListView(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: horizontalPadding,
-                vertical: verticalSpacing,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Courses",
-                    style: TextStyle(
-                      fontSize: titleFontSize,
-                      fontWeight: FontWeight.bold,
-                      color: ColorConstants.primaryColor,
+        child:
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _errorMessage != null
+                ? Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
+                    ),
+                    child: Text(
+                      _errorMessage!,
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: ColorConstants.primaryColor,
-                        width: 2,
+                )
+                : ListView(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: horizontalPadding,
+                        vertical: verticalSpacing,
                       ),
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.person,
-                        size: screenWidth * 0.08,
-                        color: ColorConstants.primaryColor,
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ProfileScreen(),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Courses",
+                            style: TextStyle(
+                              fontSize: titleFontSize,
+                              fontWeight: FontWeight.bold,
+                              color: ColorConstants.primaryColor,
+                            ),
                           ),
-                        );
-                      },
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: ColorConstants.primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.person,
+                                size: screenWidth * 0.08,
+                                color: ColorConstants.primaryColor,
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ProfileScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
 
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search course',
-                  hintStyle: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: searchFontSize,
-                  ),
-                  suffixIcon: Icon(Icons.search, color: Colors.grey[700]),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: screenWidth * 0.05,
-                    vertical: screenHeight * 0.015,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(
-                      color: ColorConstants.borderColor,
-                      width: 1,
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: horizontalPadding,
+                      ),
+                      child: TextField(
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'[a-zA-Z0-9 ]'),
+                          ),
+                        ],
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                          hintText: 'Search course',
+                          hintStyle: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: searchFontSize,
+                          ),
+                          suffixIcon: Icon(
+                            Icons.search,
+                            color: Colors.grey[700],
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.05,
+                            vertical: screenHeight * 0.015,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: ColorConstants.borderColor,
+                              width: 1,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: ColorConstants.borderColor,
+                              width: 1,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade500,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(
-                      color: ColorConstants.borderColor,
-                      width: 1,
+
+                    SizedBox(height: verticalSpacing),
+
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: horizontalPadding,
+                      ),
+                      child: Column(
+                        children:
+                            _modules.map((module) {
+                              return _buildModuleCard(
+                                module,
+                                screenWidth,
+                                verticalSpacing,
+                              );
+                            }).toList(),
+                      ),
                     ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade500,
-                      width: 1.5,
-                    ),
-                  ),
+                  ],
                 ),
-              ),
-            ),
-
-            SizedBox(height: verticalSpacing),
-
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-              child: Column(
-                children: _modules.map((module) {
-                  return _buildModuleCard(module, screenWidth, verticalSpacing);
-                }).toList(),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
 
-  Widget _buildModuleCard(Module module, double screenWidth, double verticalSpacing) {
+  Widget _buildModuleCard(
+    Module module,
+    double screenWidth,
+    double verticalSpacing,
+  ) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                ModuleScreen(moduleId: module.id),
+            builder: (context) => ModuleScreen(moduleId: module.id),
           ),
         );
       },

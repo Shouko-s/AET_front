@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class MyTextfield extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
   final bool obscureText;
   final String labelText;
+  final List<TextInputFormatter>? inputFormatters;
+  final TextInputType? keyboardType;
 
   const MyTextfield({
     super.key,
@@ -12,6 +15,8 @@ class MyTextfield extends StatefulWidget {
     required this.hintText,
     required this.obscureText,
     required this.labelText,
+    this.inputFormatters,
+    this.keyboardType,
   });
 
   @override
@@ -50,6 +55,8 @@ class _MyTextfieldState extends State<MyTextfield> {
           TextField(
             controller: widget.controller,
             obscureText: _obscure,
+            inputFormatters: widget.inputFormatters,
+            keyboardType: widget.keyboardType,
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
                 borderSide: const BorderSide(color: Colors.grey),

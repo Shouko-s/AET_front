@@ -3,6 +3,7 @@ import 'package:aet_app/core/constants/color_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:aet_app/features/auth/screens/reset_password_screen.dart';
 import 'package:aet_app/services/auth_service.dart';
+import 'package:flutter/services.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -171,7 +172,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   TextField(
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
-                    enabled: !_codeSent, // блокируем email после отправки кода
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'[a-zA-Z0-9@._-]'),
+                      ),
+                    ],
+                    enabled: !_codeSent,
                     decoration: InputDecoration(
                       labelText: 'Email',
                       labelStyle: TextStyle(color: ColorConstants.primaryColor),
@@ -208,6 +214,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     TextField(
                       controller: codeController,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
                         labelText: 'Enter code',
                         labelStyle: TextStyle(

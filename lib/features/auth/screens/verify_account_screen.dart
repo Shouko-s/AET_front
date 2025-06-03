@@ -5,6 +5,7 @@ import 'package:aet_app/features/courses/screens/courses_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:aet_app/core/constants/globals.dart';
+import 'package:flutter/services.dart';
 
 class VerifyAccountScreen extends StatefulWidget {
   final String email;
@@ -196,6 +197,7 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
                   TextField(
                     controller: codeController,
                     keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     decoration: InputDecoration(
                       labelText: 'Code',
                       labelStyle: TextStyle(color: ColorConstants.primaryColor),

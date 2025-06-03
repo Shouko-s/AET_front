@@ -2,6 +2,7 @@ import 'package:aet_app/core/constants/color_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:aet_app/features/auth/screens/login_screen.dart';
 import 'package:aet_app/services/auth_service.dart';
+import 'package:flutter/services.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final String email;
@@ -157,6 +158,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   TextField(
                     controller: passwordController,
                     obscureText: _obscurePassword,
+                    keyboardType: TextInputType.visiblePassword,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(
+                          r'[a-zA-Z0-9!@#\$%^&*()_+=\-\[\]{};:\"|,.<>\/?]',
+                        ),
+                      ),
+                    ],
                     decoration: InputDecoration(
                       labelText: 'New password',
                       labelStyle: TextStyle(color: ColorConstants.primaryColor),
@@ -196,6 +205,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   TextField(
                     controller: confirmController,
                     obscureText: _obscureConfirm,
+                    keyboardType: TextInputType.visiblePassword,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(
+                          r'[a-zA-Z0-9!@#\$%^&*()_+=\-\[\]{};:\"|,.<>\/?]',
+                        ),
+                      ),
+                    ],
                     decoration: InputDecoration(
                       labelText: 'Confirm password',
                       labelStyle: TextStyle(color: ColorConstants.primaryColor),
