@@ -1,12 +1,12 @@
 import 'package:aet_app/components/my_button.dart';
 import 'package:aet_app/core/constants/color_constants.dart';
 import 'package:aet_app/core/constants/globals.dart';
-import 'package:aet_app/core/routes/app_routes.dart';
 import 'package:aet_app/features/auth/screens/login_screen.dart';
 import 'package:aet_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:aet_app/features/profile/screens/profile_edit_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -177,7 +177,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Icons.person_outline,
                         "Edit Profile",
                         () {
-                          // Navigate to edit profile
+                          if (_username != null && _email != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => ProfileEditScreen(
+                                      currentName: _username!,
+                                      currentEmail: _email!,
+                                    ),
+                              ),
+                            );
+                          }
                         },
                       ),
 

@@ -6,7 +6,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:aet_app/core/constants/globals.dart';
 import 'package:aet_app/Components/Module/moduleDetail.dart';
-import 'package:aet_app/Components/Module/contentItem.dart';
 import 'package:aet_app/Components/Module/headingContent.dart';
 import 'package:aet_app/Components/Module/quizContent.dart';
 import 'package:aet_app/Components/Module/listContent.dart';
@@ -14,7 +13,6 @@ import 'package:aet_app/Components/Module/paragraphContent.dart';
 import 'package:aet_app/Components/Module/quoteContent.dart';
 import 'package:aet_app/Components/Module/tableContent.dart';
 import 'package:aet_app/core/constants/color_constants.dart';
-import 'package:flutter_html/flutter_html.dart';
 
 class ModuleScreen extends StatefulWidget {
   final int moduleId;
