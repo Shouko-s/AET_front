@@ -5,6 +5,7 @@ import 'listContent.dart';
 import 'quoteContent.dart';
 import 'tableContent.dart';
 import 'quizContent.dart';
+import 'pictureContent.dart';
 
 abstract class ContentItem {
   final String type;
@@ -25,6 +26,8 @@ abstract class ContentItem {
         return TableContent.fromJson(json);
       case 'quiz':
         return QuizContent.fromJson(json);
+      case 'picture':
+        return PictureContent.fromJson(json);
       default:
         throw Exception('Unknown content type: ${json['type']}');
     }
