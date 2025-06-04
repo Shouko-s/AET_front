@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:aet_app/core/constants/globals.dart';
 import 'package:flutter/services.dart';
 import 'package:flip_card/flip_card.dart';
+import 'dart:math';
 
 // Импортируем модель из файла, который мы создали:
 import 'package:aet_app/Components/module.dart';
@@ -187,6 +188,7 @@ class _CoursesScreenState extends State<CoursesScreen>
                       )
                       : ListView(
                         children: [
+                          const SizedBox(height: 16),
                           Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: horizontalPadding,
@@ -266,38 +268,116 @@ class _CoursesScreenState extends State<CoursesScreen>
   }
 
   Widget _buildCardsTab(double screenWidth, double verticalSpacing) {
-    final List<String> topics = [
-      'Mathematics',
-      'History',
-      'Science',
-      'Geography',
+    final List<_TopicCardData> topics = [
+      _TopicCardData(
+        title: 'Mathematics',
+        emoji: '🧮',
+        description: 'Algebra, calculus, and more',
+      ),
+      _TopicCardData(
+        title: 'History',
+        emoji: '🏺',
+        description: 'World events and people',
+      ),
+      _TopicCardData(
+        title: 'Science',
+        emoji: '🔬',
+        description: 'Physics, chemistry, biology',
+      ),
+      _TopicCardData(
+        title: 'Geography',
+        emoji: '🌍',
+        description: 'Countries, capitals, nature',
+      ),
     ];
-    return ListView.builder(
+    return ListView.separated(
       padding: EdgeInsets.all(screenWidth * 0.06),
       itemCount: topics.length,
+      separatorBuilder: (context, index) => SizedBox(height: verticalSpacing),
       itemBuilder: (context, index) {
-        return Card(
-          margin: EdgeInsets.only(bottom: verticalSpacing),
-          child: ListTile(
-            title: Text(topics[index]),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              if (topics[index] == 'Mathematics') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MathematicsCardsScreen(),
+        final topic = topics[index];
+        return InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () {
+            if (topic.title == 'Mathematics') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MathematicsCardsScreen(),
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Cards for this topic are coming soon!'),
+                  elevation: 0,
+                ),
+              );
+            }
+          },
+          child: Container(
+            width: double.infinity,
+            height: 100,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              gradient: LinearGradient(
+                colors: _getTopicGradient(topic.title),
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text(
+                    topic.emoji,
+                    style: const TextStyle(fontSize: 38),
                   ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Cards for this topic are coming soon!'),
-                    elevation: 0,
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        topic.title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        topic.description,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.white70,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                );
-              }
-            },
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.white.withOpacity(0.85),
+                    size: 26,
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -379,9 +459,36 @@ class _CoursesScreenState extends State<CoursesScreen>
       ),
     );
   }
+
+  List<Color> _getTopicGradient(String topic) {
+    switch (topic) {
+      case 'Mathematics':
+        return [Colors.blue.shade600, Colors.blue.shade400];
+      case 'History':
+        return [Colors.orange.shade600, Colors.orange.shade400];
+      case 'Science':
+        return [Colors.green.shade600, Colors.green.shade400];
+      case 'Geography':
+        return [Colors.purple.shade600, Colors.purple.shade400];
+      default:
+        return [Colors.grey.shade600, Colors.grey.shade400];
+    }
+  }
 }
 
-class MathematicsCardsScreen extends StatelessWidget {
+class _TopicCardData {
+  final String title;
+  final String emoji;
+  final String description;
+
+  _TopicCardData({
+    required this.title,
+    required this.emoji,
+    required this.description,
+  });
+}
+
+class MathematicsCardsScreen extends StatefulWidget {
   MathematicsCardsScreen({Key? key}) : super(key: key);
 
   final List<Map<String, String>> cards = const [
@@ -395,62 +502,312 @@ class MathematicsCardsScreen extends StatelessWidget {
   ];
 
   @override
+  State<MathematicsCardsScreen> createState() => _MathematicsCardsScreenState();
+}
+
+class _MathematicsCardsScreenState extends State<MathematicsCardsScreen> {
+  late PageController _pageController;
+  late List<Map<String, String>> _cards;
+  late List<bool?> _answers; // null = не оценено, true = знал, false = не знал
+  int _currentIndex = 0;
+  bool _showSuccess = false;
+  bool _isBack = false; // для flip
+  bool _repeatMistakesMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initSession();
+    _pageController = PageController();
+  }
+
+  void _initSession({bool repeatMistakes = false}) {
+    if (repeatMistakes) {
+      // Только ошибочные карточки
+      final mistakes = <Map<String, String>>[];
+      for (int i = 0; i < widget.cards.length; i++) {
+        if (_answers[i] == false) mistakes.add(widget.cards[i]);
+      }
+      _cards = List<Map<String, String>>.from(mistakes);
+    } else {
+      _cards = List<Map<String, String>>.from(widget.cards);
+    }
+    _answers = List<bool?>.filled(_cards.length, null);
+    _currentIndex = 0;
+    _showSuccess = false;
+    _isBack = false;
+    _repeatMistakesMode = repeatMistakes;
+    setState(() {});
+  }
+
+  void _shuffleCards() {
+    setState(() {
+      _cards.shuffle(Random());
+      _answers = List<bool?>.filled(_cards.length, null);
+      _currentIndex = 0;
+      _isBack = false;
+      _showSuccess = false;
+      _repeatMistakesMode = false;
+      _pageController.jumpToPage(0);
+    });
+  }
+
+  void _onSelfAssess(bool knew) {
+    setState(() {
+      _answers[_currentIndex] = knew;
+      if (_currentIndex < _cards.length - 1) {
+        _currentIndex++;
+        _isBack = false;
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      } else {
+        _showSuccess = true;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final verticalSpacing = MediaQuery.of(context).size.height * 0.02;
+    if (_showSuccess) {
+      final mistakes = _answers.where((a) => a == false).length;
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.black),
+          titleTextStyle: const TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          title: const Text('Mathematics Cards'),
+          automaticallyImplyLeading: !_repeatMistakesMode,
+        ),
+        backgroundColor: Colors.white,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.emoji_events, color: Colors.amber.shade700, size: 80),
+              const SizedBox(height: 24),
+              Text(
+                'You have completed all cards!',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                mistakes == 0
+                    ? 'Great job! You knew all the answers.'
+                    : 'You missed $mistakes card${mistakes == 1 ? '' : 's'}.',
+                style: const TextStyle(fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+              if (mistakes > 0 && !_repeatMistakesMode) ...[
+                const SizedBox(height: 28),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Repeat mistakes'),
+                  onPressed: () {
+                    _initSession(repeatMistakes: true);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 28,
+                      vertical: 14,
+                    ),
+                    textStyle: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 32),
+              ElevatedButton(
+                child: const Text('Restart all'),
+                onPressed: () {
+                  _initSession();
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
-      appBar: AppBar(title: const Text('Mathematics Cards')),
-      body: ListView.builder(
-        padding: EdgeInsets.all(screenWidth * 0.06),
-        itemCount: cards.length,
-        itemBuilder: (context, index) {
-          final card = cards[index];
-          return Padding(
-            padding: EdgeInsets.only(bottom: verticalSpacing),
-            child: FlipCard(
-              direction: FlipDirection.HORIZONTAL,
-              front: Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Container(
-                  height: 160,
-                  alignment: Alignment.center,
-                  child: Text(
-                    card['question']!,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              back: Card(
-                color: Colors.blue.shade100,
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Container(
-                  height: 160,
-                  alignment: Alignment.center,
-                  child: Text(
-                    card['answer']!,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
+        titleTextStyle: const TextStyle(
+          color: Colors.black,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+        title: const Text('Mathematics Cards'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shuffle),
+            tooltip: 'Shuffle',
+            onPressed: _shuffleCards,
+          ),
+        ],
       ),
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          const SizedBox(height: 18),
+          // Счетчик прогресса
+          Text(
+            'Card ${_currentIndex + 1} of ${_cards.length}',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+            child: LinearProgressIndicator(
+              value: (_currentIndex + 1) / _cards.length,
+              backgroundColor: Colors.grey[300],
+              color: Colors.blueAccent,
+              minHeight: 7,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              physics:
+                  const NeverScrollableScrollPhysics(), // только через self-assess
+              itemCount: _cards.length,
+              itemBuilder: (context, index) {
+                final card = _cards[index];
+                return Center(
+                  child: FlipCard(
+                    key: ValueKey('flipcard_$_currentIndex'),
+                    direction: FlipDirection.HORIZONTAL,
+                    flipOnTouch: !_isBack,
+                    onFlipDone: (isBack) {
+                      setState(() {
+                        _isBack = isBack;
+                      });
+                    },
+                    front: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Container(
+                        width: screenWidth * 0.85,
+                        height: 220,
+                        alignment: Alignment.center,
+                        child: Text(
+                          card['question']!,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    back: Card(
+                      color: Colors.blue.shade100,
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Container(
+                        width: screenWidth * 0.85,
+                        height: 220,
+                        alignment: Alignment.center,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              card['answer']!,
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 24),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    shape: const CircleBorder(),
+                                    backgroundColor: Colors.green,
+                                    padding: const EdgeInsets.all(18),
+                                    elevation: 2,
+                                  ),
+                                  onPressed: () => _onSelfAssess(true),
+                                  child: const Icon(
+                                    Icons.thumb_up,
+                                    color: Colors.white,
+                                    size: 32,
+                                  ),
+                                ),
+                                const SizedBox(width: 28),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    shape: const CircleBorder(),
+                                    backgroundColor: Colors.red,
+                                    padding: const EdgeInsets.all(18),
+                                    elevation: 2,
+                                  ),
+                                  onPressed: () => _onSelfAssess(false),
+                                  child: const Icon(
+                                    Icons.thumb_down,
+                                    color: Colors.white,
+                                    size: 32,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 24),
+          _buildPageIndicator(_cards.length, _currentIndex),
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPageIndicator(int length, int currentIndex) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(length, (index) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          margin: const EdgeInsets.symmetric(horizontal: 5),
+          width: currentIndex == index ? 18 : 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: currentIndex == index ? Colors.blueAccent : Colors.grey[300],
+            borderRadius: BorderRadius.circular(4),
+          ),
+        );
+      }),
     );
   }
 }
