@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:aet_app/features/profile/screens/profile_edit_screen.dart';
 import 'package:aet_app/features/profile/screens/help_support_screen.dart';
+import 'package:aet_app/features/profile/screens/notifications_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -199,7 +200,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Icons.notifications_none,
                         "Notifications",
                         () {
-                          // Navigate to notifications
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const NotificationsScreen(),
+                            ),
+                          );
                         },
                       ),
 
