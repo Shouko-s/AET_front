@@ -31,6 +31,9 @@ class _CoursesScreenState extends State<CoursesScreen>
   bool _isLoading = true;
   String? _errorMessage;
 
+  String _searchText = '';
+  final TextEditingController _searchController = TextEditingController();
+
   late TabController _tabController;
 
   // Flashcards state
@@ -65,6 +68,7 @@ class _CoursesScreenState extends State<CoursesScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -244,6 +248,12 @@ class _CoursesScreenState extends State<CoursesScreen>
                               horizontal: horizontalPadding,
                             ),
                             child: TextField(
+                              controller: _searchController,
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchText = value;
+                                });
+                              },
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
                                   RegExp(r'[a-zA-Z0-9 ]'),
@@ -256,10 +266,24 @@ class _CoursesScreenState extends State<CoursesScreen>
                                   color: Colors.grey[600],
                                   fontSize: searchFontSize,
                                 ),
-                                suffixIcon: Icon(
-                                  Icons.search,
-                                  color: Colors.grey[700],
-                                ),
+                                suffixIcon:
+                                    _searchText.isNotEmpty
+                                        ? IconButton(
+                                          icon: Icon(
+                                            Icons.clear,
+                                            color: Colors.grey[700],
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              _searchText = '';
+                                              _searchController.clear();
+                                            });
+                                          },
+                                        )
+                                        : Icon(
+                                          Icons.search,
+                                          color: Colors.grey[700],
+                                        ),
                                 contentPadding: EdgeInsets.symmetric(
                                   horizontal: screenWidth * 0.05,
                                   vertical: screenHeight * 0.015,
@@ -295,13 +319,21 @@ class _CoursesScreenState extends State<CoursesScreen>
                             ),
                             child: Column(
                               children:
-                                  _modules.map((module) {
-                                    return _buildModuleCard(
-                                      module,
-                                      screenWidth,
-                                      verticalSpacing,
-                                    );
-                                  }).toList(),
+                                  _modules
+                                      .where(
+                                        (module) =>
+                                            module.title.toLowerCase().contains(
+                                              _searchText.toLowerCase(),
+                                            ),
+                                      )
+                                      .map((module) {
+                                        return _buildModuleCard(
+                                          module,
+                                          screenWidth,
+                                          verticalSpacing,
+                                        );
+                                      })
+                                      .toList(),
                             ),
                           ),
                         ],
