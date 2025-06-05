@@ -606,67 +606,134 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     if (_showSuccess) {
       final mistakes = _answers.where((a) => a == false).length;
+      final screenHeight = MediaQuery.of(context).size.height;
+      final screenWidth = MediaQuery.of(context).size.width;
+      final verticalSpacing = screenHeight * 0.025;
+      final titleFontSize = screenWidth * 0.07;
+      final textFontSize = screenWidth * 0.045;
+      final iconSize = screenWidth * 0.22;
       return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.black),
-          titleTextStyle: const TextStyle(
-            color: Colors.black,
-            fontSize: 20,
+          iconTheme: const IconThemeData(color: ColorConstants.primaryColor),
+          titleTextStyle: TextStyle(
+            color: ColorConstants.primaryColor,
+            fontSize: titleFontSize * 0.9,
             fontWeight: FontWeight.bold,
           ),
           title: Text(widget.topic.title),
           automaticallyImplyLeading: !_repeatMistakesMode,
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: ColorConstants.backgroundColor,
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.emoji_events, color: Colors.amber.shade700, size: 80),
-              const SizedBox(height: 24),
-              Text(
-                'You have completed all cards!',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
+            child: Card(
+              elevation: 0,
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  vertical: verticalSpacing * 2,
+                  horizontal: screenWidth * 0.06,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                mistakes == 0
-                    ? 'Great job! You knew all the answers.'
-                    : 'You missed $mistakes card${mistakes == 1 ? '' : 's'}.',
-                style: const TextStyle(fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
-              if (mistakes > 0 && !_repeatMistakesMode) ...[
-                const SizedBox(height: 28),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Repeat mistakes'),
-                  onPressed: () {
-                    _initSession(repeatMistakes: true);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 28,
-                      vertical: 14,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: ColorConstants.primaryColor.withOpacity(0.08),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.emoji_events,
+                        color: Colors.amber.shade700,
+                        size: iconSize,
+                      ),
                     ),
-                    textStyle: const TextStyle(fontSize: 18),
-                  ),
+                    SizedBox(height: verticalSpacing * 1.2),
+                    Text(
+                      'Поздравляем! Все карточки пройдены',
+                      style: TextStyle(
+                        fontSize: titleFontSize,
+                        fontWeight: FontWeight.bold,
+                        color: ColorConstants.primaryColor,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: verticalSpacing * 0.7),
+                    Text(
+                      mistakes == 0
+                          ? 'Отличная работа! Вы знали все ответы.'
+                          : 'Вы пропустили $mistakes карточк${mistakes == 1
+                              ? 'у'
+                              : mistakes < 5
+                              ? 'и'
+                              : ''}.',
+                      style: TextStyle(
+                        fontSize: textFontSize,
+                        color: ColorConstants.secondaryTextColor,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    if (mistakes > 0 && !_repeatMistakesMode) ...[
+                      SizedBox(height: verticalSpacing * 1.5),
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.refresh, color: Colors.white),
+                        label: const Text(
+                          'Повторить ошибки',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () {
+                          _initSession(repeatMistakes: true);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorConstants.primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 14,
+                          ),
+                          textStyle: TextStyle(fontSize: textFontSize),
+                        ),
+                      ),
+                    ],
+                    SizedBox(height: verticalSpacing * 2),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: ColorConstants.primaryColor,
+                          side: BorderSide(
+                            color: ColorConstants.primaryColor,
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          textStyle: TextStyle(
+                            fontSize: textFontSize,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        onPressed: () {
+                          _initSession();
+                        },
+                        child: const Text('Пройти заново'),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-              const SizedBox(height: 32),
-              ElevatedButton(
-                child: const Text('Restart all'),
-                onPressed: () {
-                  _initSession();
-                },
               ),
-            ],
+            ),
           ),
         ),
       );
