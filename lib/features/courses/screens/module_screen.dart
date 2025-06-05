@@ -329,8 +329,14 @@ class _ModuleScreenState extends State<ModuleScreen> {
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: item.items.map((listItem) {
-          final htmlString = '${item.bulletSymbol()}$listItem';
+        children: List.generate(item.items.length, (i) {
+          // Если style == "number", префикс = "1. ", "2. " и т.д.
+          // Иначе (если "bullet") префикс = "• ".
+          final prefix = item.style == 'number'
+              ? '${i + 1}. '
+              : item.bulletSymbol();
+
+          final htmlString = '$prefix${item.items[i]}';
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 4.0),
             child: Html(
@@ -340,7 +346,7 @@ class _ModuleScreenState extends State<ModuleScreen> {
               },
             ),
           );
-        }).toList(),
+        }),
       ),
     );
   }
