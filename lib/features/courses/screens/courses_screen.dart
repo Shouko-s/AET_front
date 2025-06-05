@@ -695,7 +695,7 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen> {
         children: [
           const SizedBox(height: 18),
           Text(
-            'Card ${_currentIndex + 1} of ${_cards.length}',
+            'Card ${_currentIndex + 1} of ${_cards.length}',
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
           ),
           Padding(
