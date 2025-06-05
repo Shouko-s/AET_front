@@ -14,6 +14,7 @@ import 'package:aet_app/Components/module.dart';
 import 'package:aet_app/core/constants/color_constants.dart';
 import 'package:aet_app/features/profile/screens/profile_screen.dart';
 import 'package:aet_app/features/courses/screens/module_screen.dart';
+import 'package:aet_app/features/courses/flashcard_topic.dart';
 
 class CoursesScreen extends StatefulWidget {
   const CoursesScreen({Key? key}) : super(key: key);
@@ -32,11 +33,33 @@ class _CoursesScreenState extends State<CoursesScreen>
 
   late TabController _tabController;
 
+  // Flashcards state
+  List<FlashcardTopic> _topics = [];
+  bool _isLoadingTopics = false;
+  String? _topicsError;
+
+  // Градиенты для тем по индексу
+  final List<List<Color>> _topicGradients = [
+    [Colors.blue, Colors.lightBlueAccent],
+    [Colors.orange, Colors.deepOrangeAccent],
+    [Colors.green, Colors.lightGreen],
+    [Colors.purple, Colors.deepPurpleAccent],
+    [Colors.red, Colors.redAccent],
+    [Colors.teal, Colors.tealAccent],
+    [Colors.indigo, Colors.indigoAccent],
+    [Colors.pink, Colors.pinkAccent],
+  ];
+
+  List<Color> getTopicGradientByIndex(int index) {
+    return _topicGradients[index % _topicGradients.length];
+  }
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _fetchModules();
+    _fetchFlashcardTopics();
   }
 
   @override
@@ -97,6 +120,33 @@ class _CoursesScreenState extends State<CoursesScreen>
       setState(() {
         _errorMessage = 'Сетевая ошибка: $e';
         _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchFlashcardTopics() async {
+    setState(() {
+      _isLoadingTopics = true;
+      _topicsError = null;
+    });
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/flashcards/topics'));
+      if (response.statusCode == 200) {
+        final List data = jsonDecode(utf8.decode(response.bodyBytes));
+        setState(() {
+          _topics = data.map((e) => FlashcardTopic.fromJson(e)).toList();
+          _isLoadingTopics = false;
+        });
+      } else {
+        setState(() {
+          _topicsError = 'Server error: ${response.statusCode}';
+          _isLoadingTopics = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _topicsError = 'Network error: $e';
+        _isLoadingTopics = false;
       });
     }
   }
@@ -268,52 +318,32 @@ class _CoursesScreenState extends State<CoursesScreen>
   }
 
   Widget _buildCardsTab(double screenWidth, double verticalSpacing) {
-    final List<_TopicCardData> topics = [
-      _TopicCardData(
-        title: 'Mathematics',
-        emoji: '🧮',
-        description: 'Algebra, calculus, and more',
-      ),
-      _TopicCardData(
-        title: 'History',
-        emoji: '🏺',
-        description: 'World events and people',
-      ),
-      _TopicCardData(
-        title: 'Science',
-        emoji: '🔬',
-        description: 'Physics, chemistry, biology',
-      ),
-      _TopicCardData(
-        title: 'Geography',
-        emoji: '🌍',
-        description: 'Countries, capitals, nature',
-      ),
-    ];
+    if (_isLoadingTopics) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_topicsError != null) {
+      return Center(
+        child: Text(_topicsError!, style: const TextStyle(color: Colors.red)),
+      );
+    }
+    if (_topics.isEmpty) {
+      return const Center(child: Text('No topics found.'));
+    }
     return ListView.separated(
       padding: EdgeInsets.all(screenWidth * 0.06),
-      itemCount: topics.length,
+      itemCount: _topics.length,
       separatorBuilder: (context, index) => SizedBox(height: verticalSpacing),
       itemBuilder: (context, index) {
-        final topic = topics[index];
+        final topic = _topics[index];
         return InkWell(
           borderRadius: BorderRadius.circular(24),
           onTap: () {
-            if (topic.title == 'Mathematics') {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MathematicsCardsScreen(),
-                ),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Cards for this topic are coming soon!'),
-                  elevation: 0,
-                ),
-              );
-            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FlashcardTopicScreen(topic: topic),
+              ),
+            );
           },
           child: Container(
             width: double.infinity,
@@ -321,7 +351,7 @@ class _CoursesScreenState extends State<CoursesScreen>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
               gradient: LinearGradient(
-                colors: _getTopicGradient(topic.title),
+                colors: getTopicGradientByIndex(index),
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -459,59 +489,23 @@ class _CoursesScreenState extends State<CoursesScreen>
       ),
     );
   }
-
-  List<Color> _getTopicGradient(String topic) {
-    switch (topic) {
-      case 'Mathematics':
-        return [Colors.blue.shade600, Colors.blue.shade400];
-      case 'History':
-        return [Colors.orange.shade600, Colors.orange.shade400];
-      case 'Science':
-        return [Colors.green.shade600, Colors.green.shade400];
-      case 'Geography':
-        return [Colors.purple.shade600, Colors.purple.shade400];
-      default:
-        return [Colors.grey.shade600, Colors.grey.shade400];
-    }
-  }
 }
 
-class _TopicCardData {
-  final String title;
-  final String emoji;
-  final String description;
-
-  _TopicCardData({
-    required this.title,
-    required this.emoji,
-    required this.description,
-  });
-}
-
-class MathematicsCardsScreen extends StatefulWidget {
-  MathematicsCardsScreen({Key? key}) : super(key: key);
-
-  final List<Map<String, String>> cards = const [
-    {'question': 'What is the derivative of x²?', 'answer': '2x'},
-    {
-      'question': 'What is the value of π (pi) to 2 decimal places?',
-      'answer': '3.14',
-    },
-    {'question': 'What is the integral of 1/x dx?', 'answer': 'ln|x| + C'},
-    {'question': 'What is 7 × 8?', 'answer': '56'},
-  ];
+class FlashcardTopicScreen extends StatefulWidget {
+  final FlashcardTopic topic;
+  const FlashcardTopicScreen({Key? key, required this.topic}) : super(key: key);
 
   @override
-  State<MathematicsCardsScreen> createState() => _MathematicsCardsScreenState();
+  State<FlashcardTopicScreen> createState() => _FlashcardTopicScreenState();
 }
 
-class _MathematicsCardsScreenState extends State<MathematicsCardsScreen> {
+class _FlashcardTopicScreenState extends State<FlashcardTopicScreen> {
   late PageController _pageController;
-  late List<Map<String, String>> _cards;
-  late List<bool?> _answers; // null = не оценено, true = знал, false = не знал
+  late List<Flashcard> _cards;
+  late List<bool?> _answers;
   int _currentIndex = 0;
   bool _showSuccess = false;
-  bool _isBack = false; // для flip
+  bool _isBack = false;
   bool _repeatMistakesMode = false;
 
   @override
@@ -523,14 +517,13 @@ class _MathematicsCardsScreenState extends State<MathematicsCardsScreen> {
 
   void _initSession({bool repeatMistakes = false}) {
     if (repeatMistakes) {
-      // Только ошибочные карточки
-      final mistakes = <Map<String, String>>[];
-      for (int i = 0; i < widget.cards.length; i++) {
-        if (_answers[i] == false) mistakes.add(widget.cards[i]);
+      final mistakes = <Flashcard>[];
+      for (int i = 0; i < widget.topic.cards.length; i++) {
+        if (_answers[i] == false) mistakes.add(widget.topic.cards[i]);
       }
-      _cards = List<Map<String, String>>.from(mistakes);
+      _cards = List<Flashcard>.from(mistakes);
     } else {
-      _cards = List<Map<String, String>>.from(widget.cards);
+      _cards = List<Flashcard>.from(widget.topic.cards);
     }
     _answers = List<bool?>.filled(_cards.length, null);
     _currentIndex = 0;
@@ -542,7 +535,7 @@ class _MathematicsCardsScreenState extends State<MathematicsCardsScreen> {
 
   void _shuffleCards() {
     setState(() {
-      _cards.shuffle(Random());
+      _cards.shuffle();
       _answers = List<bool?>.filled(_cards.length, null);
       _currentIndex = 0;
       _isBack = false;
@@ -589,7 +582,7 @@ class _MathematicsCardsScreenState extends State<MathematicsCardsScreen> {
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
-          title: const Text('Mathematics Cards'),
+          title: Text(widget.topic.title),
           automaticallyImplyLeading: !_repeatMistakesMode,
         ),
         backgroundColor: Colors.white,
@@ -654,7 +647,7 @@ class _MathematicsCardsScreenState extends State<MathematicsCardsScreen> {
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
-        title: const Text('Mathematics Cards'),
+        title: Text(widget.topic.title),
         actions: [
           IconButton(
             icon: const Icon(Icons.shuffle),
@@ -667,9 +660,8 @@ class _MathematicsCardsScreenState extends State<MathematicsCardsScreen> {
       body: Column(
         children: [
           const SizedBox(height: 18),
-          // Счетчик прогресса
           Text(
-            'Card ${_currentIndex + 1} of ${_cards.length}',
+            'Card ${_currentIndex + 1} of ${_cards.length}',
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
           ),
           Padding(
@@ -685,8 +677,7 @@ class _MathematicsCardsScreenState extends State<MathematicsCardsScreen> {
           Expanded(
             child: PageView.builder(
               controller: _pageController,
-              physics:
-                  const NeverScrollableScrollPhysics(), // только через self-assess
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: _cards.length,
               itemBuilder: (context, index) {
                 final card = _cards[index];
@@ -710,7 +701,7 @@ class _MathematicsCardsScreenState extends State<MathematicsCardsScreen> {
                         height: 220,
                         alignment: Alignment.center,
                         child: Text(
-                          card['question']!,
+                          card.question,
                           style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -733,7 +724,7 @@ class _MathematicsCardsScreenState extends State<MathematicsCardsScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              card['answer']!,
+                              card.answer,
                               style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w500,
