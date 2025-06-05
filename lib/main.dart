@@ -31,7 +31,7 @@ Future<void> _initNotifications() async {
 
 void _startCustomPeriodicNotifications() {
   _notificationTimer?.cancel();
-  _notificationTimer = Timer.periodic(const Duration(minutes: 1), (_) async {
+  _notificationTimer = Timer.periodic(const Duration(minutes: 60), (_) async {
     const title = 'AET Reminder';
     const body = 'Не забывайте повторять материал и готовиться к тесту!';
     await flutterLocalNotificationsPlugin.show(
