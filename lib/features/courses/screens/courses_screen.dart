@@ -793,9 +793,17 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen> {
                       });
                     },
                     front: Card(
-                      elevation: 4,
+                      elevation: 8,
+                      shadowColor: ColorConstants.primaryColor.withOpacity(
+                        0.13,
+                      ),
+                      color: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(18),
+                        side: const BorderSide(
+                          color: ColorConstants.primaryColor,
+                          width: 3,
+                        ),
                       ),
                       child: Container(
                         width: screenWidth * 0.85,
@@ -812,10 +820,17 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen> {
                       ),
                     ),
                     back: Card(
-                      color: Colors.blue.shade100,
-                      elevation: 4,
+                      elevation: 8,
+                      shadowColor: ColorConstants.primaryColor.withOpacity(
+                        0.13,
+                      ),
+                      color: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(18),
+                        side: const BorderSide(
+                          color: ColorConstants.primaryColor,
+                          width: 3,
+                        ),
                       ),
                       child: Container(
                         width: screenWidth * 0.85,
