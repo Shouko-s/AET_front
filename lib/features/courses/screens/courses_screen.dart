@@ -218,7 +218,7 @@ class _CoursesScreenState extends State<CoursesScreen>
               labelColor: ColorConstants.primaryColor,
               unselectedLabelColor: Colors.grey,
               indicatorColor: ColorConstants.primaryColor,
-              tabs: const [Tab(text: 'Courses'), Tab(text: 'Cards')],
+              tabs: const [Tab(text: 'Courses'), Tab(text: 'Flashcards')],
             ),
             Expanded(
               child: TabBarView(
