@@ -420,13 +420,15 @@ class _CoursesScreenState extends State<CoursesScreen>
     double verticalSpacing,
   ) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ModuleScreen(moduleId: module.id),
           ),
         );
+        // 2) Как только вернулись — перезагружаем список, чтобы обновить прогресс
+        await _fetchModules();
       },
       child: Container(
         width: double.infinity,
