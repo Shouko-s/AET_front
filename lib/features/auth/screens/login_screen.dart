@@ -22,12 +22,36 @@ class _LoginScreenState extends State<LoginScreen> {
   final AuthService _authService = AuthService();
   bool _isLoading = false;
   String? _errorMessage;
+  bool _checkingToken = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _redirectIfAlreadyLoggedIn();
+  }
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _redirectIfAlreadyLoggedIn() async {
+    // Проверяем, есть ли токен и не истёк ли он
+    final tokenValid = await _authService.isTokenValid();
+    if (tokenValid) {
+      // Если токен валиден, переходим на экран курсов
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const CoursesScreen()),
+      );
+    } else {
+      // Если токен не найден или истёк — остаёмся на экране регистрации
+      setState(() {
+        _checkingToken = false;
+      });
+    }
   }
 
   Future<void> _login() async {
@@ -66,6 +90,18 @@ class _LoginScreenState extends State<LoginScreen> {
     final titleFontSize = screenWidth * 0.09;
     final regularFontSize = screenWidth * 0.042;
     final smallFontSize = screenWidth * 0.038;
+
+    if (_checkingToken) {
+      return Scaffold(
+        backgroundColor: Colors.white,                // белый фон
+        body: Center(
+          child: CircularProgressIndicator(
+            color: ColorConstants.primaryColor,       // ваш цвет спиннера (например)
+            strokeWidth: 3.0,                         // можно отрегулировать толщину, по желанию
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: ColorConstants.backgroundColor,

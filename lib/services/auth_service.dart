@@ -15,9 +15,15 @@ class AuthService {
 
   // Проверка валидности токена
   Future<bool> isTokenValid() async {
-    final expiry = await _storage.read(key: 'token_expiry');
-    if (expiry == null) return false;
-    return DateTime.now().isBefore(DateTime.parse(expiry));
+    final expiryString = await _storage.read(key: 'token_expiry');
+    if (expiryString == null) return false;
+
+    // Парсим строку в int, а потом создаём объект DateTime
+    final expiryMillis = int.tryParse(expiryString);
+    if (expiryMillis == null) return false;
+
+    final expiryDate = DateTime.fromMillisecondsSinceEpoch(expiryMillis);
+    return DateTime.now().isBefore(expiryDate);
   }
 
   // Получение токена
