@@ -464,6 +464,7 @@ class _ModuleScreenState extends State<ModuleScreen> {
                 _selectedOptionIndex[idx] = val;
                 if (opt.isCorrect) {
                   _answeredCorrectly[idx] = true;
+                  _markItemViewed(idx);
                   _showTryAgain[idx] = false;
                 } else {
                   _answeredCorrectly[idx] = false;
