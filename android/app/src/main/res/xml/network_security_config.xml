@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!--
+      Разрешаем cleartext (HTTP) только для домена 192.168.1.168
+      (чтобы не открывать HTTP для всего интернета).
+    -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">192.168.1.168</domain>
+    </domain-config>
+
+    <!--
+      Если нужно разрешить HTTP для всех хостов на этапе разработки,
+      можно добавить «base-config» с cleartextTrafficPermitted="true":
+    -->
+    <!--
+    <base-config cleartextTrafficPermitted="true" />
+    -->
+</network-security-config>

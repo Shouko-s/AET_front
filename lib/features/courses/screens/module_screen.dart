@@ -16,6 +16,9 @@ import 'package:aet_app/Components/Module/paragraphContent.dart';
 import 'package:aet_app/Components/Module/quoteContent.dart';
 import 'package:aet_app/Components/Module/tableContent.dart';
 import 'package:aet_app/core/constants/color_constants.dart';
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
+import 'package:aet_app/Components/Module/videoContent.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class ModuleScreen extends StatefulWidget {
@@ -45,10 +48,21 @@ class _ModuleScreenState extends State<ModuleScreen> {
   // Текущий прогресс (0.0–100.0)
   double _currentProgressPercent = 0.0;
 
+  final Map<int, VideoPlayerController> _videoControllers = {};
+  final Map<int, ChewieController>   _chewieControllers = {};
+
   @override
   void initState() {
     super.initState();
     _fetchModuleDetail();
+  }
+
+  @override
+  void dispose() {
+    // при закрытии экрана обязательно освобождаем все контроллеры
+    _chewieControllers.values.forEach((c) => c.dispose());
+    _videoControllers.values.forEach((v) => v.dispose());
+    super.dispose();
   }
 
   Future<void> _fetchModuleDetail() async {
@@ -292,7 +306,9 @@ class _ModuleScreenState extends State<ModuleScreen> {
       return _buildQuiz(item, index);
     } else if (item is PictureContent) {
       return _buildPicture(item, index);
-    } else {
+    } else if (item is VideoContent){
+      return _buildVideo(item, index);
+    }else {
       return const SizedBox.shrink();
     }
   }
@@ -539,9 +555,6 @@ class _ModuleScreenState extends State<ModuleScreen> {
     );
   }
 
-
-
-
   Widget _buildPicture(PictureContent item, int idx) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -622,6 +635,40 @@ class _ModuleScreenState extends State<ModuleScreen> {
       ),
     );
   }
+
+  Widget _buildVideo(VideoContent item, int idx) {
+    // Если для этого индекса контроллеры ещё не создавались — создаём их
+    if (!_videoControllers.containsKey(idx)) {
+      // 1) VideoPlayerController
+      final vController = VideoPlayerController.network(item.link);
+      // 2) ChewieController поверх VideoPlayerController
+      final cController = ChewieController(
+        videoPlayerController: vController,
+        aspectRatio: 16 / 9,         // можно подобрать другую пропорцию
+        autoInitialize: true,         // сразу загрузить первые фреймы
+        looping: false,               // не зацикливать видео
+        allowFullScreen: true,        // добавит кнопку «fullscreen»
+        allowPlaybackSpeedChanging: false, // отключаем пока смену скорости
+        autoPlay: false,              // не запускать сразу, пусть пользователь нажмет play
+        // Дополнительно можно настроить цвета и т.п.
+      );
+
+      _videoControllers[idx] = vController;
+      _chewieControllers[idx] = cController;
+    }
+
+    // И теперь возвращаем Chewie, обернув в какой-нибудь паддинг, если нужно
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Chewie(
+          controller: _chewieControllers[idx]!,
+        ),
+      ),
+    );
+  }
 }
+
 
 
