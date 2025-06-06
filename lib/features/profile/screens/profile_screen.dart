@@ -9,7 +9,7 @@ import 'dart:convert';
 import 'package:aet_app/features/profile/screens/profile_edit_screen.dart';
 import 'package:aet_app/features/profile/screens/help_support_screen.dart';
 import 'package:aet_app/features/profile/screens/notifications_screen.dart';
-
+import 'package:aet_app/features/profile/screens/grades_screen.dart';
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -211,10 +211,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       _buildSettingItem(
                         context,
-                        Icons.lock_outline,
-                        "Security",
-                        () {
-                          // Navigate to security settings
+                        Icons.grade,              // иконка для Grades
+                        "Grades",                  // название пункта
+                            () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const GradesScreen(),
+                            ),
+                          );
                         },
                       ),
 
