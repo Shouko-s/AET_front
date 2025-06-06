@@ -60,7 +60,7 @@ class _CoursesScreenState extends State<CoursesScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _fetchModules();
     _fetchFlashcardTopics();
   }
@@ -218,7 +218,11 @@ class _CoursesScreenState extends State<CoursesScreen>
               labelColor: ColorConstants.primaryColor,
               unselectedLabelColor: Colors.grey,
               indicatorColor: ColorConstants.primaryColor,
-              tabs: const [Tab(text: 'Courses'), Tab(text: 'Flashcards')],
+              tabs: const [
+                Tab(text: 'Courses'),
+                Tab(text: 'Flashcards'),
+                Tab(text: 'Test'),
+              ],
             ),
             Expanded(
               child: TabBarView(
@@ -340,6 +344,8 @@ class _CoursesScreenState extends State<CoursesScreen>
                       ),
                   // Cards tab
                   _buildCardsTab(screenWidth, verticalSpacing),
+                  // Test tab
+                  _buildTestTab(screenWidth, screenHeight),
                 ],
               ),
             ),
@@ -519,6 +525,71 @@ class _CoursesScreenState extends State<CoursesScreen>
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTestTab(double screenWidth, double screenHeight) {
+    final verticalSpacing = screenHeight * 0.025;
+    final buttonFontSize = screenWidth * 0.05;
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.08,
+          vertical: verticalSpacing,
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: _testButton('General English Test', buttonFontSize),
+                  ),
+                  SizedBox(height: verticalSpacing),
+                  Expanded(
+                    child: _testButton(
+                      'Computer Science Basics',
+                      buttonFontSize,
+                    ),
+                  ),
+                  SizedBox(height: verticalSpacing),
+                  Expanded(
+                    child: _testButton('Logic Practice', buttonFontSize),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _testButton(String title, double fontSize) {
+    return SizedBox.expand(
+      child: Material(
+        color: ColorConstants.primaryColor,
+        borderRadius: BorderRadius.circular(18),
+        elevation: 4,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          splashColor: Colors.white.withOpacity(0.18),
+          highlightColor: Colors.white.withOpacity(0.10),
+          onTap: () {},
+          child: Center(
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
         ),
       ),
     );
