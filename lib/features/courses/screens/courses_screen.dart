@@ -180,7 +180,7 @@ class _CoursesScreenState extends State<CoursesScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Courses",
+                    "Modules",
                     style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.bold,
@@ -220,7 +220,7 @@ class _CoursesScreenState extends State<CoursesScreen>
               unselectedLabelColor: Colors.grey,
               indicatorColor: ColorConstants.primaryColor,
               tabs: const [
-                Tab(text: 'Courses'),
+                Tab(text: 'Modules'),
                 Tab(text: 'Flashcards'),
                 Tab(text: 'Test'),
               ],
