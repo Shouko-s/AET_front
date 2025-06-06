@@ -15,6 +15,7 @@ import 'package:aet_app/core/constants/color_constants.dart';
 import 'package:aet_app/features/profile/screens/profile_screen.dart';
 import 'package:aet_app/features/courses/screens/module_screen.dart';
 import 'package:aet_app/features/courses/flashcard_topic.dart';
+import 'package:aet_app/features/courses/screens/test_screen.dart';
 
 class CoursesScreen extends StatefulWidget {
   const CoursesScreen({Key? key}) : super(key: key);
@@ -546,18 +547,23 @@ class _CoursesScreenState extends State<CoursesScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Expanded(
-                    child: _testButton('General English Test', buttonFontSize),
+                    child: _testButton(
+                      'General English Test',
+                      buttonFontSize,
+                      1,
+                    ),
                   ),
                   SizedBox(height: verticalSpacing),
                   Expanded(
                     child: _testButton(
                       'Computer Science Basics',
                       buttonFontSize,
+                      2,
                     ),
                   ),
                   SizedBox(height: verticalSpacing),
                   Expanded(
-                    child: _testButton('Logic Practice', buttonFontSize),
+                    child: _testButton('Logic Practice', buttonFontSize, 3),
                   ),
                 ],
               ),
@@ -568,7 +574,7 @@ class _CoursesScreenState extends State<CoursesScreen>
     );
   }
 
-  Widget _testButton(String title, double fontSize) {
+  Widget _testButton(String title, double fontSize, int testId) {
     return SizedBox.expand(
       child: Material(
         color: ColorConstants.primaryColor,
@@ -578,7 +584,14 @@ class _CoursesScreenState extends State<CoursesScreen>
           borderRadius: BorderRadius.circular(18),
           splashColor: Colors.white.withOpacity(0.18),
           highlightColor: Colors.white.withOpacity(0.10),
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TestScreen(testId: testId),
+              ),
+            );
+          },
           child: Center(
             child: Text(
               title,
