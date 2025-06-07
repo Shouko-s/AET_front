@@ -24,7 +24,7 @@ A modern mobile application for exam preparation, built with Flutter.
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone <your-repo-url>
+   git clone (https://github.com/Shouko-s/AET_front)
    cd aet_front
    ```
 2. Install dependencies:
