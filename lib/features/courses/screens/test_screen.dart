@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:aet_app/core/constants/color_constants.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:aet_app/core/constants/globals.dart';
+import 'test_review_screen.dart';
 
 class TestScreen extends StatefulWidget {
   final int testId;
@@ -167,6 +168,7 @@ class _TestScreenState extends State<TestScreen> {
       _score = score;
     });
     _sendResultToBackend(score, questions.length);
+    // Do not navigate automatically; show result page with review button
   }
 
   @override
@@ -290,6 +292,41 @@ class _TestScreenState extends State<TestScreen> {
                         elevation: 0,
                       ),
                       child: const Text('Back'),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder:
+                                (context) => TestReviewScreen(
+                                  questions: List<Map<String, dynamic>>.from(
+                                    questions,
+                                  ),
+                                  userAnswers: List<int?>.from(
+                                    _selectedOptions,
+                                  ),
+                                ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: ColorConstants.primaryColor,
+                        side: BorderSide(
+                          color: ColorConstants.primaryColor,
+                          width: 2,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 14,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text('Review Answers'),
                     ),
                   ],
                 ),
