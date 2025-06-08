@@ -53,10 +53,9 @@ class AuthService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'name': name, 'email': email, 'password': password}),
       );
-
       final data = jsonDecode(response.body);
       if (response.statusCode == 200 || response.statusCode == 201) {
-        await _saveAuthData(data['token'], data['expiration'].toString());
+        // НЕ сохраняем токен!
         return {'success': true};
       } else {
         return {'success': false, 'message': _parseError(data)};

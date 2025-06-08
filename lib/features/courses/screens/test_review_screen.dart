@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:aet_app/core/constants/color_constants.dart';
+import 'package:aet_app/features/courses/screens/courses_screen.dart';
 
 class TestReviewScreen extends StatelessWidget {
   final List<Map<String, dynamic>> questions;
@@ -107,7 +108,10 @@ class TestReviewScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: ElevatedButton(
             onPressed: () {
-              Navigator.of(context).popUntil((route) => route.isFirst);
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const CoursesScreen()),
+                (route) => false,
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: ColorConstants.primaryColor,
