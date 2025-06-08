@@ -49,7 +49,7 @@ class _ModuleScreenState extends State<ModuleScreen> {
   double _currentProgressPercent = 0.0;
 
   final Map<int, VideoPlayerController> _videoControllers = {};
-  final Map<int, ChewieController>   _chewieControllers = {};
+  final Map<int, ChewieController> _chewieControllers = {};
 
   @override
   void initState() {
@@ -95,7 +95,8 @@ class _ModuleScreenState extends State<ModuleScreen> {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        final data =
+            jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
         final detail = ModuleDetail.fromJson(data);
         setState(() {
           _moduleDetail = detail;
@@ -189,6 +190,7 @@ class _ModuleScreenState extends State<ModuleScreen> {
     await _sendFinalProgressToServer();
     return true; // позволяем Navigator.pop()
   }
+
   @override
   Widget build(BuildContext context) {
     // Пока грузим или ошибка
@@ -199,7 +201,10 @@ class _ModuleScreenState extends State<ModuleScreen> {
           backgroundColor: Colors.white,
           foregroundColor: ColorConstants.primaryColor,
           elevation: 0,
-          title: Text('Module ${widget.moduleId}', style: const TextStyle(color: ColorConstants.primaryColor)),
+          title: Text(
+            'Module ${widget.moduleId}',
+            style: const TextStyle(color: ColorConstants.primaryColor),
+          ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             color: ColorConstants.primaryColor,
@@ -216,7 +221,10 @@ class _ModuleScreenState extends State<ModuleScreen> {
           backgroundColor: Colors.white,
           foregroundColor: ColorConstants.primaryColor,
           elevation: 0,
-          title: Text('Module ${widget.moduleId}', style: const TextStyle(color: ColorConstants.primaryColor)),
+          title: Text(
+            'Module ${widget.moduleId}',
+            style: const TextStyle(color: ColorConstants.primaryColor),
+          ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             color: ColorConstants.primaryColor,
@@ -246,7 +254,10 @@ class _ModuleScreenState extends State<ModuleScreen> {
           backgroundColor: Colors.white,
           foregroundColor: ColorConstants.primaryColor,
           elevation: 0,
-          title: Text('Module ${widget.moduleId}', style: const TextStyle(color: ColorConstants.primaryColor)),
+          title: Text(
+            'Module ${widget.moduleId}',
+            style: const TextStyle(color: ColorConstants.primaryColor),
+          ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             color: ColorConstants.primaryColor,
@@ -306,9 +317,9 @@ class _ModuleScreenState extends State<ModuleScreen> {
       return _buildQuiz(item, index);
     } else if (item is PictureContent) {
       return _buildPicture(item, index);
-    } else if (item is VideoContent){
+    } else if (item is VideoContent) {
       return _buildVideo(item, index);
-    }else {
+    } else {
       return const SizedBox.shrink();
     }
   }
@@ -319,9 +330,7 @@ class _ModuleScreenState extends State<ModuleScreen> {
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Html(
         data: item.text,
-        style: {
-          "*": Style.fromTextStyle(item.getTextStyle(screenWidth)),
-        },
+        style: {"*": Style.fromTextStyle(item.getTextStyle(screenWidth))},
       ),
     );
   }
@@ -332,9 +341,13 @@ class _ModuleScreenState extends State<ModuleScreen> {
       child: Html(
         data: item.text,
         style: {
-          "*": Style.fromTextStyle(item.getTextStyle())
-              .copyWith(textAlign: TextAlign.justify),
-          "b": Style(color: ColorConstants.primaryColor, fontWeight: FontWeight.w900),
+          "*": Style.fromTextStyle(
+            item.getTextStyle(),
+          ).copyWith(textAlign: TextAlign.justify),
+          "b": Style(
+            color: ColorConstants.primaryColor,
+            fontWeight: FontWeight.w900,
+          ),
         },
       ),
     );
@@ -348,18 +361,15 @@ class _ModuleScreenState extends State<ModuleScreen> {
         children: List.generate(item.items.length, (i) {
           // Если style == "number", префикс = "1. ", "2. " и т.д.
           // Иначе (если "bullet") префикс = "• ".
-          final prefix = item.style == 'number'
-              ? '${i + 1}. '
-              : item.bulletSymbol();
+          final prefix =
+              item.style == 'number' ? '${i + 1}. ' : item.bulletSymbol();
 
           final htmlString = '$prefix${item.items[i]}';
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 4.0),
             child: Html(
               data: htmlString,
-              style: {
-                "*": Style.fromTextStyle(item.getItemTextStyle()),
-              },
+              style: {"*": Style.fromTextStyle(item.getItemTextStyle())},
             ),
           );
         }),
@@ -383,8 +393,9 @@ class _ModuleScreenState extends State<ModuleScreen> {
               child: Html(
                 data: item.text,
                 style: {
-                  "*": Style.fromTextStyle(item.getTextStyle())
-                      .copyWith(textAlign: TextAlign.justify),
+                  "*": Style.fromTextStyle(
+                    item.getTextStyle(),
+                  ).copyWith(textAlign: TextAlign.justify),
                   "i": Style(fontStyle: FontStyle.italic),
                 },
               ),
@@ -401,31 +412,37 @@ class _ModuleScreenState extends State<ModuleScreen> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: DataTable(
-          headingRowColor: MaterialStateColor.resolveWith((_) => Colors.grey.shade200),
-          columns: item.headers.map((h) {
-            return DataColumn(
-              label: Html(
-                data: h,
-                style: {
-                  "*": Style(fontWeight: FontWeight.bold, fontSize: FontSize(14)),
-                },
-              ),
-            );
-          }).toList(),
-          rows: item.rows.map((row) {
-            return DataRow(
-              cells: row.map((cell) {
-                return DataCell(
-                  Html(
-                    data: cell,
+          headingRowColor: MaterialStateColor.resolveWith(
+            (_) => Colors.grey.shade200,
+          ),
+          columns:
+              item.headers.map((h) {
+                return DataColumn(
+                  label: Html(
+                    data: h,
                     style: {
-                      "*": Style(fontSize: FontSize(14)),
+                      "*": Style(
+                        fontWeight: FontWeight.bold,
+                        fontSize: FontSize(14),
+                      ),
                     },
                   ),
                 );
               }).toList(),
-            );
-          }).toList(),
+          rows:
+              item.rows.map((row) {
+                return DataRow(
+                  cells:
+                      row.map((cell) {
+                        return DataCell(
+                          Html(
+                            data: cell,
+                            style: {"*": Style(fontSize: FontSize(14))},
+                          ),
+                        );
+                      }).toList(),
+                );
+              }).toList(),
         ),
       ),
     );
@@ -445,17 +462,18 @@ class _ModuleScreenState extends State<ModuleScreen> {
       // Определяем цвет рамки: прозрачная по умолчанию, зелёная/красная для выбранного
       Color borderColor = Colors.transparent;
       if (answeredCorrect != null && i == selectedIndex) {
-        borderColor = (answeredCorrect == true && opt.isCorrect)
-            ? Colors.green
-            : (answeredCorrect == false && !opt.isCorrect)
-            ? Colors.transparent
-            : (answeredCorrect == false && opt.isCorrect)
-            ? Colors.transparent
-            : (answeredCorrect == true && !opt.isCorrect)
-            ? Colors.transparent
-            : (answeredCorrect == false && i == selectedIndex)
-            ? Colors.red
-            : Colors.transparent;
+        borderColor =
+            (answeredCorrect == true && opt.isCorrect)
+                ? Colors.green
+                : (answeredCorrect == false && !opt.isCorrect)
+                ? Colors.transparent
+                : (answeredCorrect == false && opt.isCorrect)
+                ? Colors.transparent
+                : (answeredCorrect == true && !opt.isCorrect)
+                ? Colors.transparent
+                : (answeredCorrect == false && i == selectedIndex)
+                ? Colors.red
+                : Colors.transparent;
         // Упрощённо: если выбран и правильный → зелёная; если выбран и неправильный → красная
         if (i == selectedIndex) {
           borderColor = opt.isCorrect ? Colors.green : Colors.red;
@@ -473,28 +491,27 @@ class _ModuleScreenState extends State<ModuleScreen> {
             activeColor: ColorConstants.primaryColor,
             title: Html(
               data: opt.text,
-              style: {
-                "*": Style.fromTextStyle(item.getOptionTextStyle()),
-              },
+              style: {"*": Style.fromTextStyle(item.getOptionTextStyle())},
             ),
             value: i,
             groupValue: selectedIndex,
-            onChanged: (answeredCorrect == null)
-                ? (val) {
-              if (val == null) return;
-              setState(() {
-                _selectedOptionIndex[idx] = val;
-                if (opt.isCorrect) {
-                  _answeredCorrectly[idx] = true;
-                  _markItemViewed(idx);
-                  _showTryAgain[idx] = false;
-                } else {
-                  _answeredCorrectly[idx] = false;
-                  _showTryAgain[idx] = true;
-                }
-              });
-            }
-                : null, // отключаем до нажатия «Попробовать снова»
+            onChanged:
+                (answeredCorrect == null)
+                    ? (val) {
+                      if (val == null) return;
+                      setState(() {
+                        _selectedOptionIndex[idx] = val;
+                        if (opt.isCorrect) {
+                          _answeredCorrectly[idx] = true;
+                          _markItemViewed(idx);
+                          _showTryAgain[idx] = false;
+                        } else {
+                          _answeredCorrectly[idx] = false;
+                          _showTryAgain[idx] = true;
+                        }
+                      });
+                    }
+                    : null, // отключаем до нажатия «Попробовать снова»
           ),
         ),
       );
@@ -540,10 +557,7 @@ class _ModuleScreenState extends State<ModuleScreen> {
             Html(
               data: item.question,
               style: {
-                "*": Style(
-                  fontSize: FontSize(16),
-                  fontWeight: FontWeight.bold,
-                ),
+                "*": Style(fontSize: FontSize(16), fontWeight: FontWeight.bold),
               },
             ),
             const SizedBox(height: 8),
@@ -582,13 +596,19 @@ class _ModuleScreenState extends State<ModuleScreen> {
                           fit: BoxFit.contain,
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
-                            return const Center(child: CircularProgressIndicator());
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
                           },
                           errorBuilder: (context, error, stackTrace) {
                             return Container(
                               color: Colors.grey.shade900,
                               child: const Center(
-                                child: Icon(Icons.broken_image, color: Colors.white, size: 48),
+                                child: Icon(
+                                  Icons.broken_image,
+                                  color: Colors.white,
+                                  size: 48,
+                                ),
                               ),
                             );
                           },
@@ -599,7 +619,11 @@ class _ModuleScreenState extends State<ModuleScreen> {
                       top: 24,
                       right: 24,
                       child: IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 30,
+                        ),
                         onPressed: () => Navigator.of(ctx).pop(),
                       ),
                     ),
@@ -640,16 +664,16 @@ class _ModuleScreenState extends State<ModuleScreen> {
     // Если для этого индекса контроллеры ещё не создавались — создаём их
     if (!_videoControllers.containsKey(idx)) {
       // 1) VideoPlayerController
-      final vController = VideoPlayerController.network(item.link);
+      final vController = VideoPlayerController.network(item.url);
       // 2) ChewieController поверх VideoPlayerController
       final cController = ChewieController(
         videoPlayerController: vController,
-        aspectRatio: 16 / 9,         // можно подобрать другую пропорцию
-        autoInitialize: true,         // сразу загрузить первые фреймы
-        looping: false,               // не зацикливать видео
-        allowFullScreen: true,        // добавит кнопку «fullscreen»
+        aspectRatio: 16 / 9, // можно подобрать другую пропорцию
+        autoInitialize: true, // сразу загрузить первые фреймы
+        looping: false, // не зацикливать видео
+        allowFullScreen: true, // добавит кнопку «fullscreen»
         allowPlaybackSpeedChanging: false, // отключаем пока смену скорости
-        autoPlay: false,              // не запускать сразу, пусть пользователь нажмет play
+        autoPlay: false, // не запускать сразу, пусть пользователь нажмет play
         // Дополнительно можно настроить цвета и т.п.
       );
 
@@ -662,13 +686,8 @@ class _ModuleScreenState extends State<ModuleScreen> {
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: AspectRatio(
         aspectRatio: 16 / 9,
-        child: Chewie(
-          controller: _chewieControllers[idx]!,
-        ),
+        child: Chewie(controller: _chewieControllers[idx]!),
       ),
     );
   }
 }
-
-
-
