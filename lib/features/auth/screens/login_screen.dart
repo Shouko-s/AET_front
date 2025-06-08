@@ -73,6 +73,11 @@ class _LoginScreenState extends State<LoginScreen> {
           context,
           MaterialPageRoute(builder: (_) => const CoursesScreen()),
         );
+      } else if (result['message']?.contains('not verified') == true) {
+        setState(
+          () =>
+              _errorMessage = 'Account not verified. Please check your email.',
+        );
       } else {
         setState(() => _errorMessage = result['message']);
       }
@@ -93,11 +98,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (_checkingToken) {
       return Scaffold(
-        backgroundColor: Colors.white,                // белый фон
+        backgroundColor: Colors.white, // белый фон
         body: Center(
           child: CircularProgressIndicator(
-            color: ColorConstants.primaryColor,       // ваш цвет спиннера (например)
-            strokeWidth: 3.0,                         // можно отрегулировать толщину, по желанию
+            color: ColorConstants.primaryColor, // ваш цвет спиннера (например)
+            strokeWidth: 3.0, // можно отрегулировать толщину, по желанию
           ),
         ),
       );

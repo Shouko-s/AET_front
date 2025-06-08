@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:aet_app/core/constants/globals.dart';
 import 'package:flutter/services.dart';
+import 'package:aet_app/features/auth/screens/login_screen.dart';
 
 class VerifyAccountScreen extends StatefulWidget {
   final String email;
@@ -113,7 +114,7 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const CoursesScreen(),
+                            builder: (context) => const LoginScreen(),
                           ),
                         );
                       },
